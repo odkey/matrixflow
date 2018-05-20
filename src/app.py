@@ -6,21 +6,21 @@ import sys
 
 #sys.path.append(os.getcwd() + '/domain')
 
-#from response import put_response
-#from log import log_debug
-#from getface import cutout_face, get_face_image_name, circumscribe_face
+from response import put_response
+from log import log_debug
+from getface import cutout_face, get_face_image_name, circumscribe_face
 #from prob import Prob
-#import filemanager
+import filemanager
 #html_path = "../static/html/"
 
 
 
 app = Bottle()
 #prob = Prob()
-#filemanager.create_save_dir()
+filemanager.create_save_dir()
 
 @app.route('/')
-def index_html(): 
+def index_html():
     return template("index")
 
 @app.route('/upload', method="POST")
@@ -39,6 +39,7 @@ def upload_file():
         circum_res = circumscribe_face(save_path,name,save_path)
         if circum_res["status"] == "error":
             return put_response(circum_res)
+    print(res)
     return put_response(res)
 
 @app.route('/images/<image_id>/face/<number>', method="GET")

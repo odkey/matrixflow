@@ -10,6 +10,9 @@
     <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
     <title>MatrixFlow</title>
   </head>
 
@@ -38,6 +41,21 @@
           reader.onload = () => {
             this.imageUrl = reader.result;
           }
+
+          let formData = new FormData();
+          formData.append("file", this.file);
+          axios.post("/upload",
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }
+          ).then(function(){
+            console.log('SUCCESS!!');
+          }).catch(function(){
+            console.log('FAILURE!!');
+          });
         }
       }
     });
