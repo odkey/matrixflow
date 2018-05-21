@@ -15,8 +15,9 @@
   "train": {
     "learning_rate": 1e-3,
     "batch_size": 64,
+    "epoch": 0.1,
     "saver": {
-      "evaluate_every": 20,
+      "evaluate_every": 1000,
       "num_checkpoints": 5
     }
   }

@@ -47,11 +47,11 @@ class Model:
             output = tf.reshape(input, [-1, dim])
         return output
 
-    def fc(self, input):
+    def fc(self, input, size=10):
         with tf.name_scope("fc"):
             shape = int(input.shape[1])
-            W = self.weight_variable([shape, 1024])
-            b = self.bias_variable(shape=[1024])
+            W = self.weight_variable([shape, size])
+            b = self.bias_variable(shape=[size])
             h = tf.nn.bias_add(tf.matmul(input, W), b)
             output = tf.nn.relu(h)
         return output
@@ -60,7 +60,7 @@ class Model:
     def loss(self, output):
         with tf.name_scope("loss"):
             self.loss = tf.reduce_mean(
-                tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=output))
+                tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.y, logits=output))
 
     def acc(self, output):
         with tf.name_scope("accuracy"):

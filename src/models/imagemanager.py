@@ -61,7 +61,6 @@ class Manager:
                 self.test_offset = 0
                 end = num
                 random.shuffle(self.test_images)
-                print("########3")
             images = self.test_images
             labels = self.test_labels
             offset = self.test_offset
@@ -77,7 +76,6 @@ class Manager:
 
         else:
             raise Exception("kind is 'test' or 'train'")
-
 
         image_paths = images[offset: end]
         label_batch = [np.identity(10)[labels[p.name]] for p in image_paths]
