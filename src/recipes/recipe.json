@@ -11,5 +11,13 @@
     {"name": "fc"},
     {"name": "loss"},
     {"name": "acc"}
-  ]
+  ],
+  "train": {
+    "learning_rate": 1e-3,
+    "batch_size": 64,
+    "saver": {
+      "evaluate_every": 20,
+      "num_checkpoints": 5
+    }
+  }
 }
