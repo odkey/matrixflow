@@ -1,23 +1,27 @@
 {
   "layers": [
-    {"name": "input"},
-    {"name": "reshpe"},
-    {"name": "conv_2d"},
-    {"name": "max_pool"},
-    {"name": "conv_2d"},
-    {"name": "max_pool"},
-    {"name": "flatten"},
-    {"name": "fc"},
-    {"name": "fc"},
+    {"name": "input", "width": 28, "height": 28, "nClass": 10},
+    {
+      "name": "hidden",
+      "layers":[
+        {"name": "reshape", "shape":[-1, 28, 28, 1]},
+        {"name": "conv2d", "outSize": 32, "act": "relu"}, {"name": "max_pool"},
+        {"name": "conv2d", "outSize": 64, "act": "relu"},
+        {"name": "max_pool"},
+        {"name": "flatten"},
+        {"name": "fc", "outSize": 1024, "act": "relu"},
+        {"name": "fc", "outSize": 10, "act": "ident"}
+      ]
+    },
     {"name": "loss"},
     {"name": "acc"}
   ],
   "train": {
     "learning_rate": 1e-3,
     "batch_size": 64,
-    "epoch": 0.1,
+    "epoch": 0.05,
     "saver": {
-      "evaluate_every": 1000,
+      "evaluate_every": 100,
       "num_checkpoints": 5
     }
   }

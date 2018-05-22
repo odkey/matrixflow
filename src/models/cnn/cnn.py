@@ -2,6 +2,7 @@ import tensorflow as tf
 import sys
 import json
 from tqdm import tqdm
+import inspect
 
 from ..recipe import Model
 from ..recipemanager import Manager as RecipeManager
@@ -14,23 +15,56 @@ class CNN(Model):
         self.rma = RecipeManager()
         self.ima = ImageManager()
         self.recipe = self.rma.load_recipe()
+        self.methods = dict(inspect.getmembers(self, inspect.ismethod))
         print(json.dumps(self.recipe, indent=2))
 
-    def build_nn(self):
-        dim = 28
-        #x_shape = [None, dim*dim]
-        x_shape = [None, dim, dim]
-        y_shape = [None, 10]
-        self.x, self.y = self.input(x_shape, y_shape)
-        h_1 = self.reshape(self.x, [-1, dim, dim, 1])
-        h_2 = self.conv2d(h_1)
-        h_3 = self.max_pool(h_2)
-        h_4 = self.flatten(h_3)
-        h_5 = self.fc(h_4, size=1024)
-        h_6 = self.fc(h_5, size=10)
 
-        self.loss(h_6)
-        self.acc(h_6)
+    def build_nn(self):
+        layers = self.recipe["layers"]
+        output = None
+        for layer in layers:
+            name = layer["name"]
+            print(name)
+            if name == "input":
+                x_shape = [None, layer["width"], layer["height"]]
+                y_shape = [None, layer["nClass"]]
+                self.x, self.y = self.methods[name](x_shape, y_shape)
+            elif name == "hidden":
+                h = self.x
+                for l in layer["layers"]:
+                    name = l["name"]
+                    if name == "reshape":
+                        arg = [h, l["shape"]]
+                    elif name == "conv2d":
+                        arg = [h, l["outSize"]]
+                    elif name == "max_pool":
+                        arg = [h]
+                    elif name == "flatten":
+                        arg = [h]
+                    elif name == "fc":
+                        arg = [h, l["outSize"], l["act"]]
+
+                    h = self.methods[name](*arg)
+                output = h
+            elif name == "loss" or name == "acc":
+                self.methods[name](output)
+
+
+
+
+
+        #self.x, self.y = self.methods["input"](x_shape, y_shape)
+        #h_1 = self.methods["reshape"](self.x, [-1, dim, dim, 1])
+        #h_2 = self.conv2d(h_1, out_size=32)
+        #h_3 = self.max_pool(h_2)
+        #h_4 = self.conv2d(h_3, out_size=64)
+        #h_5 = self.max_pool(h_4)
+        #h_6 = self.flatten(h_5)
+        #h_7 = self.fc(h_6, size=1024)
+        #h_8 = self.fc(h_7, size=10, act="ident")
+
+        #self.loss(h_8)
+        #self.acc(h_8)
 
     def train(self, data_path):
         self.ima.load_data(data_path)
@@ -60,6 +94,12 @@ class CNN(Model):
                     labels, images = self.ima.next_batch("train", batch_size)
                     sess.run(train_op, feed_dict={self.x: images, self.y: labels})
                     if i % config["saver"]["evaluate_every"] == 0:
-                        train_loss, train_accuracy = sess.run([self.loss, self.accuracy], feed_dict={
-                        self.x: images, self.y: labels})
+                        train_loss, train_accuracy = sess.run(
+                                                        [self.loss, self.accuracy],
+                                                        feed_dict={self.x: images, self.y: labels})
                         print('step %d, training loss %g, training accuracy %g' % (i, train_loss, train_accuracy))
+
+                labels, images = self.ima.next_batch("test", self.ima.n_test)
+                feed = {self.x: images, self.y: labels}
+                test_loss, test_accuracy = sess.run([self.loss, self.accuracy], feed_dict=feed)
+                print('step %d, test loss %g, test accuracy %g' % (i, test_loss, test_accuracy))

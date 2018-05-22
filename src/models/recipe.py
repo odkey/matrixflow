@@ -9,7 +9,6 @@ class Model:
         w = tf.truncated_normal(shape, stddev=0.01)
         return tf.Variable(w)
 
-
     def bias_variable(self, shape):
         b = tf.constant(0.1, shape=shape)
         return tf.Variable(b)
@@ -26,14 +25,15 @@ class Model:
             x = tf.reshape(input, shape)
         return x
 
-    def conv2d(self, input):
+    def conv2d(self, input, out_size, act="relu"):
+        shape = input.get_shape().as_list()
+        in_channel = shape[-1]
         with tf.name_scope("conv_1"):
-            filt = tf.Variable(tf.truncated_normal([5, 5, 1, 32], stddev=0.01))
-            conv = tf.nn.conv2d(input, filt, strides=[1,1,1,1], padding="SAME")
-            b = tf.Variable(tf.constant(0.1, shape=[32]))
+            filt = tf.Variable(tf.truncated_normal([5, 5, in_channel, out_size], stddev=0.01))
+            conv = tf.nn.conv2d(input, filt, strides=[1, 1, 1, 1], padding="SAME")
+            b = tf.Variable(tf.constant(0.1, shape=[out_size]))
             h = tf.nn.bias_add(conv, b)
-            output = tf.nn.relu(h)
-        return output
+        return self.activation(h, act)
 
     def max_pool(self, input):
         with tf.name_scope("pool_1"):
@@ -47,15 +47,22 @@ class Model:
             output = tf.reshape(input, [-1, dim])
         return output
 
-    def fc(self, input, size=10):
+    def activation(self, h, type):
+        if type == "relu":
+            output = tf.nn.relu(h)
+        elif type == "ident":
+            output = h
+        else:
+            pass
+        return output
+
+    def fc(self, input, size=10, act="relu"):
         with tf.name_scope("fc"):
             shape = int(input.shape[1])
             W = self.weight_variable([shape, size])
             b = self.bias_variable(shape=[size])
             h = tf.nn.bias_add(tf.matmul(input, W), b)
-            output = tf.nn.relu(h)
-        return output
-
+        return self.activation(h, act)
 
     def loss(self, output):
         with tf.name_scope("loss"):
