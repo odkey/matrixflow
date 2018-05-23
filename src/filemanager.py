@@ -1,9 +1,10 @@
-
-# -*- coding: utf-8 -*-
-
 import os
 import shutil
 import hashlib
+import datetime
+import json
+
+recipe_dir = "./recipes
 
 def upload_file(files):
     allow_file = ["jpeg","png","jpg","JPEG","JPG","PNG"]
@@ -67,3 +68,12 @@ def get_content_type(name):
         ext = "jpeg"
     content_type = "image/"+ext
     return content_type
+
+def save_recipe(obj):
+    dir_name = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    dir_path = os.path.join(recipe_dir, dir_name)
+    create_save_dir(dir_path)
+    file_path = os.path.join(dir_path, "recipe.json")
+    with open(file_path, "w") as f:
+        json.dump(obj, f, indent=2)
+    return dir_name

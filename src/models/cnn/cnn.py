@@ -10,11 +10,11 @@ from ..imagemanager import Manager as ImageManager
 
 
 class CNN(Model):
-    def __init__(self):
-        print("init CNN model")
+    def __init__(self, recipe_id):
+        print("init CNN model from recipe_id: ", recipe_id)
         self.rma = RecipeManager()
         self.ima = ImageManager()
-        self.recipe = self.rma.load_recipe()
+        self.recipe = self.rma.load_recipe(recipe_path=recipe_id)
         self.methods = dict(inspect.getmembers(self, inspect.ismethod))
         print(json.dumps(self.recipe, indent=2))
 
