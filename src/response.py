@@ -33,7 +33,7 @@ def put_response(data, status=200, content_type="application/json"):
             if data["data_type"] == "detail":
                 data = json.dumps(data["detail"])
             else:
-                data = json.dumps(data["list"])
+                data = json.dumps({"list":data["list"], "total":data["length"]})
         else:
             data = {}
         res = HTTPResponse(body=data, status=status)

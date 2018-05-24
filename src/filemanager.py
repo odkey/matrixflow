@@ -3,8 +3,9 @@ import shutil
 import hashlib
 import datetime
 import json
+from pathlib import Path
 
-recipe_dir = "./recipes
+recipe_dir = "./recipes"
 
 def upload_file(files):
     allow_file = ["jpeg","png","jpg","JPEG","JPG","PNG"]
@@ -77,3 +78,27 @@ def save_recipe(obj):
     with open(file_path, "w") as f:
         json.dump(obj, f, indent=2)
     return dir_name
+
+def get_recipe_list(offset=0, limit=None):
+    offset = int(offset)
+    recipes = []
+    p = Path("./recipes/")
+    p_list = list(p.glob("*/*.json"))
+    length = len(p_list)
+    if limit is not None:
+        limit = int(limit)
+        p_list = p_list[offset:limit]
+    else:
+        p_list = p_list[offset:]
+    for j in p_list:
+        id = j.parent.name
+        with open(j, "r") as f:
+            body = json.load(f)
+        recipes.append({"id": id, "body": body})
+    res = {
+            "status": "success",
+            "data_type": "list",
+            "total": length,
+            "list": recipes
+        }
+    return res
