@@ -32,18 +32,32 @@ def get_recipes_list():
 
 @app.route('/recipes', method="POST")
 def add_recipe():
+    content_type = request.get_header('Content-Type')
+    if content_type == "application/json":
+        obj = request.json
+        res = fm.save_recipe(obj)
+    else:
+        res = {"status": "error"}
     return put_response(res)
 
 @app.route('/recipes/<recipe_id>', method="GET")
 def get_recipe(recipe_id):
+    res = fm.get_recipe(recipe_id)
     return put_response(res)
 
 @app.route('/recipes/<recipe_id>', method="PUT")
 def update_recipe(recipe_id):
+    content_type = request.get_header('Content-Type')
+    if content_type == "application/json":
+        obj = request.json
+        res = fm.update_recipe(recipe_id, obj)
+    else:
+        res = {"status": "error"}
     return put_response(res)
 
 @app.route('/recipes/<recipe_id>', method="DELETE")
 def delete_recipe(recipe_id):
+    res = fm.delete_recipe(recipe_id)
     return put_response(res)
 
 

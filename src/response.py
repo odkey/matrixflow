@@ -32,8 +32,10 @@ def put_response(data, status=200, content_type="application/json"):
         if isinstance(data, dict):
             if data["data_type"] == "detail":
                 data = json.dumps(data["detail"])
-            else:
+            elif data["data_type"] == "list":
                 data = json.dumps({"list":data["list"], "total":data["total"]})
+            else:
+                data = {}
         else:
             data = {}
         res = HTTPResponse(body=data, status=status)

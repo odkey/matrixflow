@@ -77,12 +77,17 @@ def save_recipe(obj):
     file_path = os.path.join(dir_path, "recipe.json")
     with open(file_path, "w") as f:
         json.dump(obj, f, indent=2)
-    return dir_name
+    res = {
+        "status": "success",
+        "data_type": "detail",
+        "detail": {"id": dir_name, "body": obj}
+    }
+    return res
 
 def get_recipe_list(offset=0, limit=None):
     offset = int(offset)
     recipes = []
-    p = Path("./recipes/")
+    p = Path(recipe_dir)
     p_list = list(p.glob("*/*.json"))
     length = len(p_list)
     if limit is not None:
@@ -101,4 +106,37 @@ def get_recipe_list(offset=0, limit=None):
             "total": length,
             "list": recipes
         }
+    return res
+
+def get_recipe(id):
+    p = Path(recipe_dir) / id / "recipe.json"
+    with open(p, "r") as f:
+        body = json.load(f)
+    recipe = {"id": id, "body": body}
+    res = {
+        "status": "success",
+        "data_type": "detail",
+        "detail": recipe
+    }
+    return res
+
+def update_recipe(id, obj):
+    p = Path(recipe_dir) / id / "recipe.json"
+    with open(p, "w") as f:
+        json.dump(obj, f, indent=2)
+    res = {
+        "status": "success",
+        "data_type": "detail",
+        "detail": {"id": id, "body": obj}
+    }
+    return res
+
+def delete_recipe(id):
+    p = Path(recipe_dir) / id
+    if os.path.isdir(p):
+        shutil.rmtree(p)
+    res = {
+        "status": "success",
+        "data_type": "delete"
+    }
     return res
