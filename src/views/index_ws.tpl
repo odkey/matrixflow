@@ -13,6 +13,9 @@
     <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+
   </head>
   <body>
     <H1> MatrixFlow </H1>
@@ -34,6 +37,7 @@
       <p v-if="learningProgress > 0">
           <b-progress height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
       </p>
+      <line-chart :chart-data=accuracyChartData :options=accuracyChartOptions></line-chart>
     </div>
   </body>
   <script type="text/javascript">
@@ -60,6 +64,12 @@
         }else if(res["action"] == "learning"){
           vm.learningNumIter = res["nIter"]
           vm.learningProgress = res["iter"]
+        }else if(res["action"] == "evaluate_train"){
+          let data = Object.assign({}, vm.accuracyChartData);
+          data.labels.push(res["iter"])
+          data.datasets[0].data.push(parseFloat(res["loss"]))
+          vm.accuracyChartData = data;
+
         } else {
           var loadedSize = res["loadedSize"]
           if(loadedSize){
@@ -95,6 +105,18 @@
         learningProgress: 0,
         learningNumIter: 0,
         uploadFile: null,
+        accuracyChartOptions: {responsive: true, maintainAspectRatio: false},
+        accuracyChartData: {
+          labels: [],
+          datasets: [
+            {
+              label: "loss",
+              fill: false,
+              backgroundColor: '#f87979',
+              data: []
+            }
+          ]
+        },
         uploaded: false,
         progress: 0,
         result: ""
@@ -107,6 +129,7 @@
             "dataId": "mnist"
            }
           ws.send(JSON.stringify(req))
+
         },
         selectedFile: function(e){
           e.preventDefault();
@@ -124,6 +147,15 @@
           ws.send(JSON.stringify(request));
           parseFile(this.uploadFile, 20);
         }
+      }
+    });
+
+    Vue.component('line-chart', {
+      extends: VueChartJs.Line,
+      mixins: [VueChartJs.mixins.reactiveProp],
+      props: ['chartData', 'options'],
+      mounted () {
+        this.renderChart(this.chartData, this.options)
       }
     });
   </script>

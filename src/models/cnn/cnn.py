@@ -93,10 +93,13 @@ class CNN(Model):
                 sess.run(tf.global_variables_initializer())
                 epoch = config["epoch"]
                 batch_size = config["batch_size"]
-                for i in tqdm(range(int(epoch * self.ima.n_train))):
+                n_iter = int(epoch * self.ima.n_train)
+                for i in tqdm(range(n_iter)):
+
                     if ws:
-                        res = {"action": "learning", "iter": i, "nIter": int(epoch * self.ima.n_train)}
+                        res = {"action": "learning", "iter": i, "nIter": n_iter}
                         ws.send(json.dumps(res))
+
                     labels, images = self.ima.next_batch("train", batch_size)
                     sess.run(train_op, feed_dict={self.x: images, self.y: labels})
                     if i % config["saver"]["evaluate_every"] == 0:
@@ -104,6 +107,15 @@ class CNN(Model):
                                                         [self.loss, self.accuracy],
                                                         feed_dict={self.x: images, self.y: labels})
                         print('step %d, training loss %g, training accuracy %g' % (i, train_loss, train_accuracy))
+                        if ws:
+                            res = {
+                                "action": "evaluate_train",
+                                "iter": i,
+                                "nIter": n_iter,
+                                "loss": str(train_loss),
+                                "accuracy": str(train_accuracy)
+                            }
+                            ws.send(json.dumps(res))
 
                 labels, images = self.ima.next_batch("test", self.ima.n_test)
                 feed = {self.x: images, self.y: labels}
