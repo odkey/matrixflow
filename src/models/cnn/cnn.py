@@ -69,7 +69,7 @@ class CNN(Model):
         #self.loss(h_8)
         #self.acc(h_8)
 
-    def train(self, data_path):
+    def train(self, data_path, ws=None):
         self.ima.load_data(os.path.join(self.data_dir, data_path))
 
         log_dir = "./log"
@@ -94,6 +94,9 @@ class CNN(Model):
                 epoch = config["epoch"]
                 batch_size = config["batch_size"]
                 for i in tqdm(range(int(epoch * self.ima.n_train))):
+                    if ws:
+                        res = {"action": "learning", "iter": i, "nIter": int(epoch * self.ima.n_train)}
+                        ws.send(json.dumps(res))
                     labels, images = self.ima.next_batch("train", batch_size)
                     sess.run(train_op, feed_dict={self.x: images, self.y: labels})
                     if i % config["saver"]["evaluate_every"] == 0:

@@ -31,6 +31,9 @@
       <p>
         <b-button variant="success" v-on:click="startLearning">Start to learn</b-button>
       </p>
+      <p v-if="learningProgress > 0">
+          <b-progress height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
+      </p>
     </div>
   </body>
   <script type="text/javascript">
@@ -54,12 +57,16 @@
             }
             vm.recipeOptions.push(option);
           });
-        }
-        var loadedSize = res["loadedSize"]
-        if(loadedSize){
-          vm.progress = loadedSize;
-        }else{
-          console.log(res);
+        }else if(res["action"] == "learning"){
+          vm.learningNumIter = res["nIter"]
+          vm.learningProgress = res["iter"]
+        } else {
+          var loadedSize = res["loadedSize"]
+          if(loadedSize){
+            vm.progress = loadedSize;
+          }else{
+            console.log(res);
+          }
         }
     };
     function parseFile(file, chunkSize){
@@ -85,6 +92,8 @@
       data: {
         recipeOptions: [],
         selectedRecipe: "",
+        learningProgress: 0,
+        learningNumIter: 0,
         uploadFile: null,
         uploaded: false,
         progress: 0,

@@ -88,7 +88,7 @@ def handler(wsock, message):
             recipe_id = obj["recipeId"]
             data_id = obj["dataId"]
             model = CNN(recipe_id)
-            model.train(data_id)
+            model.train(data_id, wsock)
 
 
 
