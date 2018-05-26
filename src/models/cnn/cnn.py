@@ -3,15 +3,18 @@ import sys
 import json
 from tqdm import tqdm
 import inspect
+import os
 
 from ..recipe import Model
 from ..recipemanager import Manager as RecipeManager
 from ..imagemanager import Manager as ImageManager
 
 
+
 class CNN(Model):
-    def __init__(self, recipe_id):
+    def __init__(self, recipe_id, data_dir="./data"):
         print("init CNN model from recipe_id: ", recipe_id)
+        self.data_dir = data_dir
         self.rma = RecipeManager()
         self.ima = ImageManager()
         self.recipe = self.rma.load_recipe(recipe_path=recipe_id)
@@ -67,7 +70,7 @@ class CNN(Model):
         #self.acc(h_8)
 
     def train(self, data_path):
-        self.ima.load_data(data_path)
+        self.ima.load_data(os.path.join(self.data_dir, data_path))
 
         log_dir = "./log"
         if tf.gfile.Exists(log_dir):

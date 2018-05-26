@@ -13,15 +13,24 @@ from getface import cutout_face, get_face_image_name, circumscribe_face
 import filemanager as fm
 #html_path = "../static/html/"
 
+from gevent.pywsgi import WSGIServer
+import gevent
+from geventwebsocket import WebSocketError
+from geventwebsocket.handler import WebSocketHandler
+from multiprocessing import Process
+from models.cnn.cnn import CNN
+
 
 
 app = Bottle()
+dictionary = {}
 #prob = Prob()
 fm.create_save_dir()
 
 @app.route('/')
 def index_html():
-    return template("index")
+    #return template("index")
+    return template("index_ws")
 
 @app.route('/recipes', method="GET")
 def get_recipes_list():
@@ -59,6 +68,71 @@ def update_recipe(recipe_id):
 def delete_recipe(recipe_id):
     res = fm.delete_recipe(recipe_id)
     return put_response(res)
+
+
+
+def handler(wsock, message):
+    d = dictionary[wsock]
+    try:
+        obj = json.loads(message)
+        print(obj)
+        if obj["action"] == "upload":
+            pass
+        elif obj["action"] == "get_recipe_list":
+            offset = obj.get("offset", 0)
+            limit = obj.get("limit")
+            res = fm.get_recipe_list(offset, limit)
+            res["action"] = "get_recipe_list"
+            wsock.send(json.dumps(res))
+        elif obj["action"] == "start_learing":
+            recipe_id = obj["recipeId"]
+            data_id = obj["dataId"]
+            model = CNN(recipe_id)
+            model.train(data_id)
+
+
+
+
+    except (UnicodeDecodeError, json.decoder.JSONDecodeError):
+        d["size"] += len(message)
+        d["uploading_file"] += message
+        response = {"status": "loading", "loadedSize": d["size"]}
+        print(response)
+        wsock.send(json.dumps(response))
+        if d["size"] == int(d["file_size"]):
+            uploading_file = d["uploading_file"]
+            file_id = put_upload_file(uploading_file)
+            response = {"status": "loaded", "fileId": file_id}
+            wsock.send(json.dumps(response))
+
+
+@app.route('/connect')
+def handle_websocket():
+    wsock = request.environ.get('wsgi.websocket')
+    if not wsock:
+        abort(400, 'Expected WebSocket request.')
+    global dictionary
+
+    if wsock not in dictionary:
+        dictionary[wsock] = {
+            "num": None,
+            "file_size": 0,
+            "size": 0,
+            "uploading_file": bytearray()
+        }
+
+    while True:
+        try:
+            message = wsock.receive()
+            gevent.spawn(handler, wsock, message)
+        except WebSocketError:
+            break
+
+
+
+
+
+
 
 
 @app.route('/upload', method="POST")
@@ -125,4 +199,6 @@ def read_static(file_type, file):
     return put_response(data=data, content_type=content_type)
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8081, debug=True, reloader=True)
+    #app.run(host="0.0.0.0", port=8081, debug=True, reloader=True)
+    server = WSGIServer(("0.0.0.0", 8081), app, handler_class=WebSocketHandler)
+    server.serve_forever()
