@@ -117,7 +117,17 @@ class CNN(Model):
                             }
                             ws.send(json.dumps(res))
 
-                labels, images = self.ima.next_batch("test", self.ima.n_test)
-                feed = {self.x: images, self.y: labels}
-                test_loss, test_accuracy = sess.run([self.loss, self.accuracy], feed_dict=feed)
-                print('step %d, test loss %g, test accuracy %g' % (i, test_loss, test_accuracy))
+                    if i % 50 == 0:
+                        labels, images = self.ima.next_batch("test", self.ima.n_test)
+                        feed = {self.x: images, self.y: labels}
+                        test_loss, test_accuracy = sess.run([self.loss, self.accuracy], feed_dict=feed)
+                        print('step %d, test loss %g, test accuracy %g' % (i, test_loss, test_accuracy))
+                        if ws:
+                            res = {
+                                "action": "evaluate_test",
+                                "iter": i,
+                                "nIter": n_iter,
+                                "loss": str(test_loss),
+                                "accuracy": str(test_accuracy)
+                            }
+                            ws.send(json.dumps(res))

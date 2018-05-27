@@ -90,9 +90,6 @@ def handler(wsock, message):
             model = CNN(recipe_id)
             model.train(data_id, wsock)
 
-
-
-
     except (UnicodeDecodeError, json.decoder.JSONDecodeError):
         d["size"] += len(message)
         d["uploading_file"] += message
