@@ -37,8 +37,10 @@
       <p v-if="learningProgress > 0">
           <b-progress height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
       </p>
-      <line-chart :chart-data=accuracyChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-      <line-chart :chart-data=lossChartData :options=chartOptions :width="500" style="float:left;"></line-chart>
+      <line-chart :chart-data=accuracyTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+      <line-chart :chart-data=lossTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+      <line-chart :chart-data=accuracyTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+      <line-chart :chart-data=lossTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
     </div>
   </body>
   <script type="text/javascript">
@@ -66,11 +68,11 @@
           vm.learningNumIter = res["nIter"]
           vm.learningProgress = res["iter"]
         }else if(res["action"] == "evaluate_train"){
-          vm.accuracyChartData = addChartData(vm.accuracyChartData, "train", res["iter"], res["accuracy"]);
-          vm.lossChartData = addChartData(vm.lossChartData, "train", res["iter"], res["loss"]);
+          vm.accuracyTrainChartData = addChartData(vm.accuracyTrainChartData, "train", res["iter"], res["accuracy"]);
+          vm.lossTrainChartData = addChartData(vm.lossTrainChartData, "train", res["iter"], res["loss"]);
         }else if(res["action"] == "evaluate_test"){
-          vm.accuracyChartData = addChartData(vm.accuracyChartData, "test", res["iter"], res["accuracy"]);
-          vm.lossChartData = addChartData(vm.lossChartData, "test", res["iter"], res["loss"]);
+          vm.accuracyTestChartData = addChartData(vm.accuracyTestChartData, "test", res["iter"], res["accuracy"]);
+          vm.lossTestChartData = addChartData(vm.lossTestChartData, "test", res["iter"], res["loss"]);
         } else {
           var loadedSize = res["loadedSize"]
           if(loadedSize){
@@ -82,14 +84,18 @@
     };
 
     function addChartData(charData, type, newLabel, newData){
-      const types = {"train":0, "test": 1}
+      //const types = {"train":0, "test": 1}
       let data = Object.assign({}, charData);
+      /*
       const lastLabel = data.labels.length > 0 ? data.labels[data.labels.length - 1]:0
       if (parseInt(lastLabel) < parseInt(newLabel)){
         data.labels.push(newLabel)
       }
+      */
+      data.labels.push(newLabel)
       const newDataNum = parseFloat(newData);
-      data.datasets[types[type]].data.push(newDataNum);
+      //data.datasets[types[type]].data.push(newDataNum);
+      data.datasets[0].data.push(newDataNum);
       return data;
     }
 
@@ -120,7 +126,7 @@
         learningNumIter: 0,
         uploadFile: null,
         chartOptions: {responsive: false, maintainAspectRatio: false},
-        accuracyChartData: {
+        accuracyTrainChartData: {
           labels: [],
           datasets: [
             {
@@ -128,16 +134,10 @@
               fill: false,
               backgroundColor: '#0EE5D5',
               data: []
-            },
-            {
-              label: "test_accuracy",
-              fill: false,
-              backgroundColor: '#f87979',
-              data: []
-            },
+            }
           ]
         },
-        lossChartData: {
+        lossTrainChartData: {
           labels: [],
           datasets: [
             {
@@ -145,7 +145,23 @@
               fill: false,
               backgroundColor: '#0EE5D5',
               data: []
-            },
+            }
+          ]
+        },
+        accuracyTestChartData: {
+          labels: [],
+          datasets: [
+            {
+              label: "test_accuracy",
+              fill: false,
+              backgroundColor: '#f87979',
+              data: []
+            }
+          ]
+        },
+        lossTestChartData: {
+          labels: [],
+          datasets: [
             {
               label: "test_loss",
               fill: false,
@@ -154,6 +170,7 @@
             }
           ]
         },
+
         uploaded: false,
         progress: 0,
         result: ""
