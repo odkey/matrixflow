@@ -1,0 +1,16 @@
+{
+  "ja": {
+    "message": {},
+    "element": {
+      "recipe": "レシピ",
+      "startToLearn": "学習開始"
+    }
+  },
+  "en": {
+    "message": {},
+    "element": {
+      "reccipe": "Recipe",
+      "startToLearn": "Start to Learn"
+    }
+  }
+}

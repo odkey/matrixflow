@@ -1,4 +1,4 @@
-from bottle import request, Bottle, run, template
+from bottle import request, Bottle, run, template, static_file
 
 import json
 import os
@@ -31,6 +31,10 @@ fm.create_save_dir()
 def index_html():
     #return template("index")
     return template("index_ws")
+
+@app.route("/statics/<filepath:path>")
+def statics(filepath):
+    return static_file(filepath, root="./statics")
 
 @app.route('/recipes', method="GET")
 def get_recipes_list():
@@ -196,6 +200,6 @@ def read_static(file_type, file):
     return put_response(data=data, content_type=content_type)
 
 if __name__ == '__main__':
-    #app.run(host="0.0.0.0", port=8081, debug=True, reloader=True)
-    server = WSGIServer(("0.0.0.0", 8081), app, handler_class=WebSocketHandler)
+    app.run(host="0.0.0.0", port=8081, debug=True, reloader=True)
+    #server = WSGIServer(("0.0.0.0", 8081), app, handler_class=WebSocketHandler)
     server.serve_forever()

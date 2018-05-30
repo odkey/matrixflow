@@ -13,6 +13,8 @@
     <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 
+    <script src="statics/js/vue-i18n.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
 
@@ -29,10 +31,10 @@
         ${result}
       </div>
       <p>
-        Recipe: <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-51 mb-3" />
+        ${$t("element.recipe")}: <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-51 mb-3" />
       </p>
       <p>
-        <b-button variant="success" v-on:click="startLearning">Start to learn</b-button>
+        <b-button variant="success" v-on:click="startLearning">${$t("element.startToLearn")}</b-button>
       </p>
       <p v-if="learningProgress > 0">
           <b-progress height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
@@ -116,8 +118,20 @@
           })(file, i);
         }
     }
+    var translations = undefined;
+    axios.get("statics/i18n/main.json")
+      .then((res) => {
+        translations = res.data;
+
+    Vue.use(VueI18n);
+    const i18n = new VueI18n({
+      locale: 'ja', // デフォルト言語はjaにしておくが、ブラウザの言語を拾ってきてここに入れる => 言語変更されたら書き換える
+      messages: translations
+    });
+
     let vm = new Vue({
       delimiters: ['${', '}'],
+      i18n: i18n,
       el: '#app',
       data: {
         recipeOptions: [],
@@ -203,6 +217,7 @@
         }
       }
     });
+  });
 
     Vue.component('line-chart', {
       extends: VueChartJs.Line,
