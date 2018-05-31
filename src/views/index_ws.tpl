@@ -20,10 +20,11 @@
 
   </head>
   <body>
-    <H1> MatrixFlow </H1>
     <div id="app">
-        <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder="Choose a CSV file..."></b-form-file>
-        <button v-on:click="send" v-bind:disabled="!uploadFile">Upload</button>
+    <H1> MatrixFlow </H1>
+        <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder=""></b-form-file>
+        <br>
+        <b-button v-on:click="send" v-bind:disabled="!uploadFile">Upload</b-button>
         <p v-if="progress > 0">
           <b-progress height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
         </p>
@@ -46,44 +47,9 @@
     </div>
   </body>
   <script type="text/javascript">
-    var host = "localhost:8081";
-    var url = "ws://"+host+"/connect";
-    var ws = new WebSocket(url);
-    ws.onopen = () => {
-      console.log("ws open.");
-      const req = {"action": "get_recipe_list"};
-      ws.send(JSON.stringify(req))
-    };
-    ws.onclose = function(){ console.log("we close.");};
-    ws.onmessage = (evt) => {
-        const res  = JSON.parse(evt.data)
-        console.log(res);
-        if (res["action"] == "get_recipe_list") {
-          res["list"].forEach((v) =>{
-            const option = {"value": v, "text": v["id"]};
-            if(!v["body"]){
-              option["disabled"]= true
-            }
-            vm.recipeOptions.push(option);
-          });
-        }else if(res["action"] == "learning"){
-          vm.learningNumIter = res["nIter"]
-          vm.learningProgress = res["iter"]
-        }else if(res["action"] == "evaluate_train"){
-          vm.accuracyTrainChartData = addChartData(vm.accuracyTrainChartData, "train", res["iter"], res["accuracy"]);
-          vm.lossTrainChartData = addChartData(vm.lossTrainChartData, "train", res["iter"], res["loss"]);
-        }else if(res["action"] == "evaluate_test"){
-          vm.accuracyTestChartData = addChartData(vm.accuracyTestChartData, "test", res["iter"], res["accuracy"]);
-          vm.lossTestChartData = addChartData(vm.lossTestChartData, "test", res["iter"], res["loss"]);
-        } else {
-          var loadedSize = res["loadedSize"]
-          if(loadedSize){
-            vm.progress = loadedSize;
-          }else{
-            console.log(res);
-          }
-        }
-    };
+    //var host = "localhost:8081";
+    const host = location.host;
+    const url = "ws://"+host+"/connect";
 
     function addChartData(charData, type, newLabel, newData){
       //const types = {"train":0, "test": 1}
@@ -118,11 +84,10 @@
           })(file, i);
         }
     }
-    var translations = undefined;
     axios.get("statics/i18n/main.json")
       .then((res) => {
-        translations = res.data;
 
+    const translations = res.data;
     Vue.use(VueI18n);
     const i18n = new VueI18n({
       locale: 'ja', // デフォルト言語はjaにしておくが、ブラウザの言語を拾ってきてここに入れる => 言語変更されたら書き換える
@@ -134,6 +99,7 @@
       i18n: i18n,
       el: '#app',
       data: {
+        ws : new WebSocket(url),
         recipeOptions: [],
         selectedRecipe: "",
         learningProgress: 0,
@@ -196,7 +162,7 @@
             "recipeId": this.selectedRecipe["id"],
             "dataId": "mnist"
            }
-          ws.send(JSON.stringify(req))
+          this.ws.send(JSON.stringify(req))
 
         },
         selectedFile: function(e){
@@ -212,9 +178,48 @@
             fileSize: fileSize
           }
           this.progress = 1;
-          ws.send(JSON.stringify(request));
+          this.ws.send(JSON.stringify(request));
           parseFile(this.uploadFile, 20);
         }
+      },
+      mounted: function (){
+        console.log(this.learningNumIter);
+
+        this.ws.onopen = () => {
+          console.log("ws open.");
+          const req = {"action": "get_recipe_list"};
+          this.ws.send(JSON.stringify(req))
+        };
+        this.ws.onclose = function(){ console.log("we close.");};
+        this.ws.onmessage = (evt) => {
+            const res  = JSON.parse(evt.data)
+            console.log(res);
+            if (res["action"] == "get_recipe_list") {
+              res["list"].forEach((v) =>{
+                const option = {"value": v, "text": v["id"]};
+                if(!v["body"]){
+                  option["disabled"]= true
+                }
+                this.recipeOptions.push(option);
+              });
+            }else if(res["action"] == "learning"){
+              this.learningNumIter = res["nIter"]
+              this.learningProgress = res["iter"]
+            }else if(res["action"] == "evaluate_train"){
+              this.accuracyTrainChartData = addChartData(this.accuracyTrainChartData, "train", res["iter"], res["accuracy"]);
+              this.lossTrainChartData = addChartData(this.lossTrainChartData, "train", res["iter"], res["loss"]);
+            }else if(res["action"] == "evaluate_test"){
+              this.accuracyTestChartData = addChartData(this.accuracyTestChartData, "test", res["iter"], res["accuracy"]);
+              this.lossTestChartData = addChartData(this.lossTestChartData, "test", res["iter"], res["loss"]);
+            } else {
+              var loadedSize = res["loadedSize"]
+              if(loadedSize){
+                this.progress = loadedSize;
+              }else{
+                console.log(res);
+              }
+            }
+        };
       }
     });
   });
