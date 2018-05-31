@@ -3,6 +3,7 @@ from bottle import request, Bottle, run, template, static_file
 import json
 import os
 import sys
+from argparse import ArgumentParser
 
 #sys.path.append(os.getcwd() + '/domain')
 
@@ -200,6 +201,15 @@ def read_static(file_type, file):
     return put_response(data=data, content_type=content_type)
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8081, debug=True, reloader=True)
-    #server = WSGIServer(("0.0.0.0", 8081), app, handler_class=WebSocketHandler)
-    server.serve_forever()
+    parser = ArgumentParser()
+    parser.add_argument('--port', dest="port", type=int, default=8081)
+    parser.add_argument('--debug', dest="debug", action="store_true")
+    args = parser.parse_args()
+    port = args.port
+    if args.debug:
+        log_debug("debug mode.")
+        app.run(host="0.0.0.0", port=8081, debug=True, reloader=True)
+    else:
+        server = WSGIServer(("0.0.0.0", port), app, handler_class=WebSocketHandler)
+        log_debug("websocket server start. port:{}".format(port))
+        server.serve_forever()
