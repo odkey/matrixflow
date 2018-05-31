@@ -117,7 +117,7 @@ class CNN(Model):
                             }
                             ws.send(json.dumps(res))
 
-                    if i % 50 == 0:
+                    if i % 50 == 0 and i != 0:
                         labels, images = self.ima.next_batch("test", self.ima.n_test)
                         feed = {self.x: images, self.y: labels}
                         test_loss, test_accuracy = sess.run([self.loss, self.accuracy], feed_dict=feed)
