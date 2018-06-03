@@ -3,28 +3,42 @@
     "message": {},
     "element": {
       "recipe": "レシピ",
+      "data": "データ",
       "startToLearn": "学習開始"
     },
     "tab":{
-      "data": "データ管理",
-      "recipe": "レシピ管理",
-      "learning": "学習",
-      "model": "モデル管理",
-      "setting": "設定"
+      "menu":{
+        "data": "データ管理",
+        "recipe": "レシピ管理",
+        "learning": "学習",
+        "model": "モデル管理",
+        "setting": "設定"
+      },
+      "data": {
+        "list": "リスト",
+        "add": "データを追加"
+      }
     }
   },
   "en": {
     "message": {},
     "element": {
       "reccipe": "Recipe",
+      "data": "Data",
       "startToLearn": "Start to Learn"
     },
     "tab":{
-      "data": "Data Management",
-      "recipe": "Recipe Management",
-      "learning": "Learning",
-      "model": "Model Management",
-      "setting": "Settings"
+      "menu":{
+        "data": "Data Management",
+        "recipe": "Recipe Management",
+        "learning": "Learning",
+        "model": "Model Management",
+        "setting": "Settings"
+      },
+      "data": {
+        "list": "List",
+        "add": "Add New Data"
+      }
     }
   }
 }

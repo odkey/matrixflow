@@ -9,3 +9,7 @@ H2 {
 .inner-tab{
   margin: 5px;
 }
+
+.scroll {
+  cursor: all-scroll;
+}

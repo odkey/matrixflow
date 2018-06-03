@@ -20,6 +20,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
 
+    <script src="//cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.16.0/vuedraggable.min.js"></script>
+
   </head>
   <body>
     <div id="app">
@@ -29,9 +32,9 @@
 
       <b-tab active>
         <template slot="title">
-          ${$t("tab.data")}
+          ${$t("tab.menu.data")}
         </template>
-        <h2>${$t("tab.data")}</h2>
+        <h2>${$t("tab.menu.data")}</h2>
 
         <b-tabs class="inner-tab">
           <b-tab active>
@@ -63,6 +66,14 @@
                     <b-col>${ row.item.create_time }</b-col>
                   </b-row>
                   <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>number of images:</b></b-col>
+                    <b-col>${ row.item.nImages }</b-col>
+                  </b-row>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>number of labels:</b></b-col>
+                    <b-col>${ row.item.nLabels }</b-col>
+                  </b-row>
+                  <b-row class="mb-2">
                     <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
                     <b-col>${ row.item.update_time }</b-col>
                   </b-row>
@@ -89,9 +100,9 @@
 
       <b-tab>
         <template slot="title">
-          ${$t("tab.recipe")}
+          ${$t("tab.menu.recipe")}
         </template>
-        <h2>${$t("tab.recipe")}</h2>
+        <h2>${$t("tab.menu.recipe")}</h2>
         <b-table :items="recipes" :fields="recipeFields" striped hover>
           <template slot="showDetails" slot-scope="row">
             <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
@@ -126,39 +137,51 @@
 
       <b-tab>
         <template slot="title">
-          ${$t("tab.learning")}
+          ${$t("tab.menu.learning")}
         </template>
-        <h2>${$t("tab.learning")}</h2>
+        <h2>${$t("tab.menu.learning")}</h2>
         <p>
-          ${$t("element.recipe")}<br>
-           <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-51 mb-3 w-50" />
+          ${$t("element.data")}: <b-form-select v-model="selectedLearningData" :options="learningDataOptions" class="w-51 mb-3 w-50" />
         </p>
         <p>
-          <b-button variant="success" v-on:click="startLearning" v-bind:disabled="!selectedRecipe">
+          ${$t("element.recipe")}: <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-51 mb-3 w-50" />
+        </p>
+        <p>
+          <b-button variant="success" v-on:click="startLearning" v-bind:disabled="!selectedRecipe || !selectedLearningData">
             ${$t("element.startToLearn")}
           </b-button>
         </p>
         <p v-if="learningProgress > 0">
           <b-progress height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
         </p>
-        <line-chart :chart-data=accuracyTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-        <line-chart :chart-data=lossTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-        <line-chart :chart-data=accuracyTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-        <line-chart :chart-data=lossTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+        <draggable @choose="dragChoose" @end="dragEnd" v-on:blur="dragBlur">
+          <div>
+            <line-chart :chart-data=accuracyTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+          </div>
+          <div>
+            <line-chart :chart-data=lossTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+          </div>
+          <div>
+            <line-chart :chart-data=accuracyTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+          </div>
+            <div>
+          <line-chart :chart-data=lossTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+          </div>
+        </draggable>
       </b-tab>
 
       <b-tab>
         <template slot="title">
-          ${$t("tab.model")}
+          ${$t("tab.menu.model")}
         </template>
-        <h2>${$t("tab.model")}</h2>
+        <h2>${$t("tab.menu.model")}</h2>
       </b-tab>
 
       <b-tab>
         <template slot="title">
-          ${$t("tab.setting")}
+          ${$t("tab.menu.setting")}
         </template>
-        <h2>${$t("tab.setting")}</h2>
+        <h2>${$t("tab.menu.setting")}</h2>
       </b-tab>
 
     </b-tabs>
@@ -224,6 +247,7 @@
         recipes: [],
         learningData: [],
         selectedRecipe: "",
+        selectedLearningData: "",
         recipeFields: {},
         dataFields: {},
         learningProgress: 0,
@@ -284,7 +308,7 @@
           req = {
             "action": "start_learing",
             "recipeId": this.selectedRecipe["id"],
-            "dataId": "20180524202024"
+            "dataId": this.selectedLearningData["id"]
            }
           this.sendMessage(req)
 
@@ -294,6 +318,17 @@
           console.log("uploaded");
           let files = e.target.files;
           this.uploadFile = files[0];
+        },
+        dragChoose: function(e){
+          e.target.className = "scroll";
+        },
+        dragEnd: function(e){
+          console.log("end");
+          e.target.className = "";
+        },
+        dragBlur: function(e){
+          console.log("blur");
+          e.target.className = "";
         },
         uploadData: function(){
           var fileSize = this.uploadFile.size
@@ -366,14 +401,25 @@
         recipeOptions: function(){
           const recipeOptions = []
           this.recipes.forEach((v) => {
-            const option = {"value": v, "text": v["id"]};
+            const option = {"value": v, "text": v["name"]+" ("+v["id"]+")"};
             if(!v["body"]){
               option["disabled"]= true
             }
             recipeOptions.push(option);
           });
           return recipeOptions
-        }
+        },
+        learningDataOptions: function(){
+          const options = []
+          this.learningData.forEach((v) => {
+            const option = {"value": v, "text": v["name"]+" ("+v["id"]+")"};
+            if(v["nImages"].length != v["nLabels"].length){
+              option["disabled"]= true
+            }
+            options.push(option);
+          });
+          return options
+        },
       },
 
       mounted: function (){
