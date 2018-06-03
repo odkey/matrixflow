@@ -26,22 +26,27 @@ class Manager:
             img = self.imread(path)
         return rgb2gray(skimage.transform.resize(img, [dim, dim], mode="reflect"))
 
-    def load_data(self, path):
+    def load_data(self, path, ratio=0.1):
         p = Path(path)
-        test_labels_path = p / "labels" / "test.csv"
-        train_labels_path = p / "labels" / "train.csv"
-        self.test_labels = self.create_label_obj(test_labels_path)
-        self.train_labels = self.create_label_obj(train_labels_path)
-        test_image_dir = p / "images" / "test"
-        train_image_dir = p / "images" / "train"
-        self.train_images = list(train_image_dir.glob("*"))
-        self.test_images = list(test_image_dir.glob("*"))
-        random.shuffle(self.train_images)
-        random.shuffle(self.test_images)
+        labels_path = p / "labels" / "labels.csv"
+        self.labels = self.create_label_obj(labels_path)
+        image_dir = p / "images"
+        images = list(image_dir.glob("*.jpg"))
+        random.shuffle(images)
+        n_images = len(images)
+
+        print("# of images: ", len(images))
+        print("test/train: ", ratio)
+
+        n_test = int(n_images * ratio)
+
+        self.test_images = images[:n_test]
+        self.train_images = images[n_test:]
+
+
         self.n_test = len(self.test_images)
         self.n_train = len(self.train_images)
-        assert self.n_test == len(self.test_labels)
-        assert self.n_train == len(self.train_labels)
+
         print("test/train: {}/{} = {:.4}".format(
             self.n_test, self.n_train, self.n_test/self.n_train))
 
@@ -62,7 +67,6 @@ class Manager:
                 end = num
                 random.shuffle(self.test_images)
             images = self.test_images
-            labels = self.test_labels
             offset = self.test_offset
         elif kind == "train":
             end = self.train_offset + num
@@ -71,14 +75,13 @@ class Manager:
                 end = num
                 random.shuffle(self.train_images)
             images = self.train_images
-            labels = self.train_labels
             offset = self.train_offset
 
         else:
             raise Exception("kind is 'test' or 'train'")
 
         image_paths = images[offset: end]
-        label_batch = [np.identity(10)[labels[p.name]] for p in image_paths]
+        label_batch = [np.identity(10)[self.labels[p.name]] for p in image_paths]
         image_batch = [self.imread(str(p)) for p in image_paths]
 
         if kind == "test":

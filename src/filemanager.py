@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 recipe_dir = "./recipes"
+data_dir = "./data"
 
 def upload_file(files):
     allow_file = ["jpeg","png","jpg","JPEG","JPG","PNG"]
@@ -69,6 +70,52 @@ def get_content_type(name):
         ext = "jpeg"
     content_type = "image/"+ext
     return content_type
+
+
+def get_data_list():
+    p = Path(data_dir)
+    p_list = [x for x in p.iterdir() if x.is_dir()]
+    print(p_list)
+    length = len(p_list)
+    data = []
+    for j in p_list:
+        images = j / "images"
+        labels = j / "labels" / "labels.csv"
+        info = j / "info" / "info.json"
+        id = j.name
+        n_images = len(list(images.glob("*")))
+        print(n_images)
+        print(images, labels, info)
+        with open(info, "r") as f:
+            body = json.load(f)
+
+        with open(labels, "r") as f:
+            n_labels = len(f.readlines())
+
+        epoch_time = os.path.getctime(j)
+        create_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
+
+        epoch_time = os.path.getmtime(j)
+        update_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
+        rec = {
+            "id": id,
+            "nImages": n_images,
+            "nLabels": n_labels,
+            "name": body.get("name", ""),
+            "description": body.get("description", ""),
+            "update_time": update_time,
+            "create_time": create_time
+        }
+        data.append(rec)
+    res = {
+            "status": "success",
+            "data_type": "list",
+            "total": length,
+            "list": data
+    }
+    return res
+
+
 
 def save_recipe(obj):
     dir_name = datetime.datetime.now().strftime("%Y%m%d%H%M%S")

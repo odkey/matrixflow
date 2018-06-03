@@ -83,11 +83,19 @@ def handler(wsock, message):
         print(obj)
         if obj["action"] == "upload":
             pass
+
+        elif obj["action"] == "get_data_list":
+            offset = obj.get("offset", 0)
+            limit = obj.get("limit")
+            res = fm.get_data_list()
+            res["action"] = obj["action"]
+            wsock.send(json.dumps(res))
+
         elif obj["action"] == "get_recipe_list":
             offset = obj.get("offset", 0)
             limit = obj.get("limit")
             res = fm.get_recipe_list(offset, limit)
-            res["action"] = "get_recipe_list"
+            res["action"] = obj["action"]
             wsock.send(json.dumps(res))
         elif obj["action"] == "start_learing":
             recipe_id = obj["recipeId"]

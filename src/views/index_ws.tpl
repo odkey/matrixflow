@@ -32,12 +32,59 @@
           ${$t("tab.data")}
         </template>
         <h2>${$t("tab.data")}</h2>
-        <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder=""></b-form-file>
-        <br>
-        <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">Upload</b-button>
-        <p v-if="progress > 0">
-          <b-progress height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
-        </p>
+
+        <b-tabs class="inner-tab">
+          <b-tab active>
+            <template slot="title">
+              ${$t("tab.data.list")}
+            </template>
+            <b-table :items="learningData" :fields="dataFields" striped hover>
+              <template slot="showDetails" slot-scope="row">
+                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
+                  ${ row.detailsShowing ? 'Hide' : 'Show'} Details
+              </b-button>
+              </template>
+              <template slot="row-details" slot-scope="row">
+                <b-card>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>id:</b></b-col>
+                    <b-col>${ row.item.id }</b-col>
+                  </b-row>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>name:</b></b-col>
+                    <b-col>${ row.item.name }</b-col>
+                  </b-row>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>description:</b></b-col>
+                    <b-col>${ row.item.description }</b-col>
+                  </b-row>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>createTime:</b></b-col>
+                    <b-col>${ row.item.create_time }</b-col>
+                  </b-row>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
+                    <b-col>${ row.item.update_time }</b-col>
+                  </b-row>
+                  <b-button size="sm" @click="row.toggleDetails" variant="success">Hide Details</b-button>
+                </b-card>
+              </template>
+            </b-table>
+          </b-tab>
+          <b-tab>
+            <template slot="title">
+              ${$t("tab.data.add")}
+            </template>
+            <p>
+              <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder=""></b-form-file>
+              <br>
+              <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">Upload</b-button>
+              <p v-if="progress > 0">
+                <b-progress height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
+              </p>
+            </p>
+          </b-tab>
+        </b-tabs>
       </b-tab>
 
       <b-tab>
@@ -175,8 +222,10 @@
       data: {
         ws : new WebSocket(url),
         recipes: [],
+        learningData: [],
         selectedRecipe: "",
-        recipeFields: [],
+        recipeFields: {},
+        dataFields: {},
         learningProgress: 0,
         learningNumIter: 0,
         uploadFile: null,
@@ -235,7 +284,7 @@
           req = {
             "action": "start_learing",
             "recipeId": this.selectedRecipe["id"],
-            "dataId": "mnist"
+            "dataId": "20180524202024"
            }
           this.sendMessage(req)
 
@@ -282,6 +331,34 @@
               sortable: false,
             }
           };
+        },
+        setDataFields: function(){
+          this.dataFields = {
+            id: {
+              label: "id",
+              sortable: false
+            },
+            name: {
+              label: "name",
+              sortable: true,
+            },
+            description: {
+              label: "description",
+              sortable: false,
+            },
+            create_time: {
+              label: "createTime",
+              sortable: true,
+            },
+            update_time: {
+              label: "updateTime",
+              sortable: true,
+            },
+            showDetails: {
+              label: "details",
+              sortable: false,
+            }
+          };
         }
       },
 
@@ -301,11 +378,15 @@
 
       mounted: function (){
         this.setRecipeFields();
+        this.setDataFields();
 
         this.ws.onopen = () => {
           console.log("ws open.");
-          const req = {"action": "get_recipe_list"};
-          this.sendMessage(req);
+          const recipes_req = {"action": "get_recipe_list"};
+          this.sendMessage(recipes_req);
+
+          const data_req = {"action": "get_data_list"};
+          this.sendMessage(data_req);
         };
         this.ws.onclose = function(e){
           console.log("we close.");
@@ -317,7 +398,10 @@
         this.ws.onmessage = (evt) => {
             const res  = JSON.parse(evt.data)
             console.log(res);
-            if (res["action"] == "get_recipe_list") {
+            if (res["action"] == "get_data_list") {
+              this.learningData = res["list"]
+              console.log(this.learningData);
+            }else if (res["action"] == "get_recipe_list") {
               this.recipes = res["list"]
             }else if(res["action"] == "learning"){
               this.learningNumIter = res["nIter"]

@@ -83,7 +83,7 @@ class CNN(Model):
             print("start session")
             with tf.Session() as sess:
                 self.build_nn()
-                summary_writer = tf.summary.FileWriter(log_dir, sess.graph)
+                #summary_writer = tf.summary.FileWriter(log_dir, sess.graph)
 
                 global_step = tf.Variable(0, name="global_step", trainable=False)
                 optimizer = tf.train.AdamOptimizer(config["learning_rate"])
