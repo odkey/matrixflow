@@ -99,7 +99,19 @@ def get_recipe_list(offset=0, limit=None):
         id = j.parent.name
         with open(j, "r") as f:
             body = json.load(f)
-        recipes.append({"id": id, "body": body})
+
+        epoch_time = os.path.getctime(j)
+        create_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
+
+        epoch_time = os.path.getmtime(j)
+        update_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
+        rec = {
+            "id": id,
+            "body": body,
+            "update_time": update_time,
+            "create_time": create_time
+        }
+        recipes.append(rec)
     res = {
             "status": "success",
             "data_type": "list",

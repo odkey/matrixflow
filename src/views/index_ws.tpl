@@ -15,6 +15,8 @@
 
     <script src="statics/js/vue-i18n.js"></script>
 
+    <link type="text/css" rel="stylesheet" href="statics/css/main.css"/>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
 
@@ -22,28 +24,100 @@
   <body>
     <div id="app">
     <H1> MatrixFlow </H1>
+
+    <b-tabs>
+
+      <b-tab active>
+        <template slot="title">
+          ${$t("tab.data")}
+        </template>
+        <h2>${$t("tab.data")}</h2>
         <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder=""></b-form-file>
         <br>
-        <b-button v-on:click="send" v-bind:disabled="!uploadFile">Upload</b-button>
+        <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">Upload</b-button>
         <p v-if="progress > 0">
           <b-progress height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
         </p>
+      </b-tab>
+
+      <b-tab>
+        <template slot="title">
+          ${$t("tab.recipe")}
+        </template>
+        <h2>${$t("tab.recipe")}</h2>
+        <b-table :items="recipes" :fields="recipeFields" striped hover>
+          <template slot="showDetails" slot-scope="row">
+            <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
+              ${ row.detailsShowing ? 'Hide' : 'Show'} Details
+          </b-button>
+          </template>
+          <template slot="row-details" slot-scope="row">
+            <b-card>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>id:</b></b-col>
+                <b-col>${ row.item.id }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>createTime:</b></b-col>
+                <b-col>${ row.item.create_time }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
+                <b-col>${ row.item.update_time }</b-col>
+              </b-row>
+              <b-row>
+                <b-col sm="3" class="text-sm-right"></b-col>
+                <b-col>
+                  <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
+                </b-col>
+              </b-row>
+              <b-button size="sm" @click="row.toggleDetails" variant="success">Hide Details</b-button>
+            </b-card>
+          </template>
+        </b-table>
+      </b-tab>
+
+      <b-tab>
+        <template slot="title">
+          ${$t("tab.learning")}
+        </template>
+        <h2>${$t("tab.learning")}</h2>
+        <p>
+          ${$t("element.recipe")}<br>
+           <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-51 mb-3 w-50" />
+        </p>
+        <p>
+          <b-button variant="success" v-on:click="startLearning" v-bind:disabled="!selectedRecipe">
+            ${$t("element.startToLearn")}
+          </b-button>
+        </p>
+        <p v-if="learningProgress > 0">
+          <b-progress height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
+        </p>
+        <line-chart :chart-data=accuracyTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+        <line-chart :chart-data=lossTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+        <line-chart :chart-data=accuracyTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+        <line-chart :chart-data=lossTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+      </b-tab>
+
+      <b-tab>
+        <template slot="title">
+          ${$t("tab.model")}
+        </template>
+        <h2>${$t("tab.model")}</h2>
+      </b-tab>
+
+      <b-tab>
+        <template slot="title">
+          ${$t("tab.setting")}
+        </template>
+        <h2>${$t("tab.setting")}</h2>
+      </b-tab>
+
+    </b-tabs>
       <div>
         ${result}
       </div>
-      <p>
-        ${$t("element.recipe")}: <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-51 mb-3" />
-      </p>
-      <p>
-        <b-button variant="success" v-on:click="startLearning">${$t("element.startToLearn")}</b-button>
-      </p>
-      <p v-if="learningProgress > 0">
-          <b-progress height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
-      </p>
-      <line-chart :chart-data=accuracyTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-      <line-chart :chart-data=lossTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-      <line-chart :chart-data=accuracyTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-      <line-chart :chart-data=lossTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
     </div>
   </body>
   <script type="text/javascript">
@@ -100,8 +174,9 @@
       el: '#app',
       data: {
         ws : new WebSocket(url),
-        recipeOptions: [],
+        recipes: [],
         selectedRecipe: "",
+        recipeFields: [],
         learningProgress: 0,
         learningNumIter: 0,
         uploadFile: null,
@@ -162,7 +237,7 @@
             "recipeId": this.selectedRecipe["id"],
             "dataId": "mnist"
            }
-          this.ws.send(JSON.stringify(req))
+          this.sendMessage(req)
 
         },
         selectedFile: function(e){
@@ -171,37 +246,79 @@
           let files = e.target.files;
           this.uploadFile = files[0];
         },
-        send: function(){
+        uploadData: function(){
           var fileSize = this.uploadFile.size
           var request = {
             action: "upload",
             fileSize: fileSize
           }
           this.progress = 1;
-          this.ws.send(JSON.stringify(request));
+          this.sendMessage(request);
           parseFile(this.uploadFile, 20);
+        },
+        sendMessage: function(msg){
+          this.ws.send(JSON.stringify(msg));
+        },
+        json2String: function(json){
+          console.log(json);
+          return JSON.stringify(json, undefined, 4);
+        },
+        setRecipeFields: function(){
+          this.recipeFields = {
+            id: {
+              label: "id",
+              sortable: false
+            },
+            create_time: {
+              label: "createTime",
+              sortable: true,
+            },
+            update_time: {
+              label: "updateTime",
+              sortable: true,
+            },
+            showDetails: {
+              label: "details",
+              sortable: false,
+            }
+          };
         }
       },
+
+      computed: {
+        recipeOptions: function(){
+          const recipeOptions = []
+          this.recipes.forEach((v) => {
+            const option = {"value": v, "text": v["id"]};
+            if(!v["body"]){
+              option["disabled"]= true
+            }
+            recipeOptions.push(option);
+          });
+          return recipeOptions
+        }
+      },
+
       mounted: function (){
-        console.log(this.learningNumIter);
+        this.setRecipeFields();
 
         this.ws.onopen = () => {
           console.log("ws open.");
           const req = {"action": "get_recipe_list"};
-          this.ws.send(JSON.stringify(req))
+          this.sendMessage(req);
         };
-        this.ws.onclose = function(){ console.log("we close.");};
+        this.ws.onclose = function(e){
+          console.log("we close.");
+          console.log(e);
+        };
+
+
+
         this.ws.onmessage = (evt) => {
             const res  = JSON.parse(evt.data)
             console.log(res);
             if (res["action"] == "get_recipe_list") {
-              res["list"].forEach((v) =>{
-                const option = {"value": v, "text": v["id"]};
-                if(!v["body"]){
-                  option["disabled"]= true
-                }
-                this.recipeOptions.push(option);
-              });
+              this.recipes = res["list"]
             }else if(res["action"] == "learning"){
               this.learningNumIter = res["nIter"]
               this.learningProgress = res["iter"]

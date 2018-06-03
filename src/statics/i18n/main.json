@@ -4,6 +4,13 @@
     "element": {
       "recipe": "レシピ",
       "startToLearn": "学習開始"
+    },
+    "tab":{
+      "data": "データ管理",
+      "recipe": "レシピ管理",
+      "learning": "学習",
+      "model": "モデル管理",
+      "setting": "設定"
     }
   },
   "en": {
@@ -11,6 +18,13 @@
     "element": {
       "reccipe": "Recipe",
       "startToLearn": "Start to Learn"
+    },
+    "tab":{
+      "data": "Data Management",
+      "recipe": "Recipe Management",
+      "learning": "Learning",
+      "model": "Model Management",
+      "setting": "Settings"
     }
   }
 }
