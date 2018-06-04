@@ -247,10 +247,19 @@
     axios.get("statics/i18n/main.json")
       .then((res) => {
 
+    let language = (window.navigator.languages && window.navigator.languages[0]) ||
+              window.navigator.language ||
+              window.navigator.userLanguage ||
+              window.navigator.browserLanguage;
+
+    language = language? language.split("-")[0]: "en"
+    console.log(language);
+
+
     const translations = res.data;
     Vue.use(VueI18n);
     const i18n = new VueI18n({
-      locale: 'ja', // デフォルト言語はjaにしておくが、ブラウザの言語を拾ってきてここに入れる => 言語変更されたら書き換える
+      locale: language,
       messages: translations
     });
 
