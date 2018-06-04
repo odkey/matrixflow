@@ -22,12 +22,16 @@
         "list": "リスト",
         "add": "レシピを追加"
       }
+    },
+    "setting":{
+      "language": "言語"
     }
   },
+
   "en": {
     "message": {},
     "element": {
-      "reccipe": "Recipe",
+      "recipe": "Recipe",
       "data": "Data",
       "startToLearn": "Start to Learn"
     },
@@ -47,6 +51,9 @@
         "list": "List",
         "add": "Add New Recipe"
       }
+    },
+    "setting":{
+      "language": "Language"
     }
   }
 }
