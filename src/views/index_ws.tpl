@@ -103,36 +103,50 @@
           ${$t("tab.menu.recipe")}
         </template>
         <h2>${$t("tab.menu.recipe")}</h2>
-        <b-table :items="recipes" :fields="recipeFields" striped hover>
-          <template slot="showDetails" slot-scope="row">
-            <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
-              ${ row.detailsShowing ? 'Hide' : 'Show'} Details
-          </b-button>
-          </template>
-          <template slot="row-details" slot-scope="row">
-            <b-card>
-              <b-row class="mb-2">
-                <b-col sm="3" class="text-sm-right"><b>id:</b></b-col>
-                <b-col>${ row.item.id }</b-col>
-              </b-row>
-              <b-row class="mb-2">
-                <b-col sm="3" class="text-sm-right"><b>createTime:</b></b-col>
-                <b-col>${ row.item.create_time }</b-col>
-              </b-row>
-              <b-row class="mb-2">
-                <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
-                <b-col>${ row.item.update_time }</b-col>
-              </b-row>
-              <b-row>
-                <b-col sm="3" class="text-sm-right"></b-col>
-                <b-col>
-                  <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
-                </b-col>
-              </b-row>
-              <b-button size="sm" @click="row.toggleDetails" variant="success">Hide Details</b-button>
-            </b-card>
-          </template>
-        </b-table>
+        <b-tabs class="inner-tab">
+          <b-tab>
+            <template slot="title">
+              ${$t("tab.recipe.list")}
+            </template>
+            <b-table :items="recipes" :fields="recipeFields" striped hover>
+              <template slot="showDetails" slot-scope="row">
+                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
+                  ${ row.detailsShowing ? 'Hide' : 'Show'} Details
+                </b-button>
+              </template>
+              <template slot="row-details" slot-scope="row">
+                <b-card>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>id:</b></b-col>
+                    <b-col>${ row.item.id }</b-col>
+                  </b-row>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>createTime:</b></b-col>
+                    <b-col>${ row.item.create_time }</b-col>
+                  </b-row>
+                  <b-row class="mb-2">
+                    <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
+                    <b-col>${ row.item.update_time }</b-col>
+                  </b-row>
+                  <b-row>
+                    <b-col sm="3" class="text-sm-right"></b-col>
+                    <b-col>
+                      <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
+                    </b-col>
+                  </b-row>
+                  <b-button size="sm" @click="row.toggleDetails" variant="success">Hide Details</b-button>
+                </b-card>
+              </template>
+            </b-table>
+          </b-tab>
+
+          <b-tab>
+            <template slot="title">
+              ${$t("tab.recipe.add")}
+            </template>
+          </b-tab>
+
+        </b-tabs>
       </b-tab>
 
       <b-tab>

@@ -17,6 +17,10 @@
       "data": {
         "list": "リスト",
         "add": "データを追加"
+      },
+      "recipe": {
+        "list": "リスト",
+        "add": "レシピを追加"
       }
     }
   },
@@ -38,6 +42,10 @@
       "data": {
         "list": "List",
         "add": "Add New Data"
+      },
+      "recipe": {
+        "list": "List",
+        "add": "Add New Recipe"
       }
     }
   }
