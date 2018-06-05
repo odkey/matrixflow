@@ -28,16 +28,40 @@
   </head>
   <body>
     <div id="app">
-    <H1> MatrixFlow </H1>
+    <b-navbar toggleable="md" type="dark" class="nav-main">
+      <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+      <b-navbar-brand>MatrixFlow</b-navbar-brand>
 
-    <b-tabs>
+      <b-collapse is-nav id="nav_collapse">
+        <b-navbar-nav>
+          <b-nav-item @click="changeMenu('data')">${$t("tab.menu.data")}</b-nav-item>
+          <b-nav-item @click="changeMenu('recipe')">${$t("tab.menu.recipe")}</b-nav-item>
+          <b-nav-item @click="changeMenu('learning')">${$t("tab.menu.learning")}</b-nav-item>
+          <b-nav-item @click="changeMenu('model')">${$t("tab.menu.model")}</b-nav-item>
+        </b-navbar-nav>
 
-      <b-tab active>
-        <template slot="title">
-          ${$t("tab.menu.data")}
-        </template>
-        <h2>${$t("tab.menu.data")}</h2>
+        <b-navbar-nav class="ml-auto">
 
+          <!--   Can't change the label of tabs. languages are changed in 'settings'.
+          <b-nav-item-dropdown text="Lang" right>
+            <b-dropdown-item @click="changeLang('en')">English</b-dropdown-item>
+            <b-dropdown-item @click="changeLang('ja')">日本語</b-dropdown-item>
+          </b-nav-item-dropdown>
+        -->
+
+          <b-nav-item-dropdown right>
+            <template slot="button-content">
+              <em>User</em>
+            </template>
+            <b-dropdown-item @click="changeMenu('setting')">${$t("tab.menu.setting")}</b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+
+      </b-collapse>
+    </b-navbar>
+
+    <div v-show="selectedMenu == 'data'">
+      <h2>${$t("tab.menu.data")}</h2>
         <b-tabs class="inner-tab">
           <b-tab active>
             <template slot="title">
@@ -98,12 +122,9 @@
             </p>
           </b-tab>
         </b-tabs>
-      </b-tab>
+      </div>
 
-      <b-tab>
-        <template slot="title">
-          ${$t("tab.menu.recipe")}
-        </template>
+      <div v-show="selectedMenu == 'recipe'">
         <h2>${$t("tab.menu.recipe")}</h2>
         <b-tabs class="inner-tab">
           <b-tab>
@@ -149,12 +170,9 @@
           </b-tab>
 
         </b-tabs>
-      </b-tab>
+      </div>
 
-      <b-tab>
-        <template slot="title">
-          ${$t("tab.menu.learning")}
-        </template>
+      <div v-show="selectedMenu == 'learning'">
         <h2>${$t("tab.menu.learning")}</h2>
         <p>
           ${$t("element.data")}: <b-form-select v-model="selectedLearningData" :options="learningDataOptions" class="w-51 mb-3 w-50" />
@@ -184,25 +202,16 @@
           <line-chart :chart-data=lossTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
           </div>
         </draggable>
-      </b-tab>
+      </div>
 
-      <b-tab>
-        <template slot="title">
-          ${$t("tab.menu.model")}
-        </template>
+      <div v-show="selectedMenu == 'model'">
         <h2>${$t("tab.menu.model")}</h2>
-      </b-tab>
+      </div>
 
-      <b-tab>
-        <template slot="title">
-          ${$t("tab.menu.setting")}
-        </template>
+      <div v-show="selectedMenu == 'setting'">
         <h2>${$t("tab.menu.setting")}</h2>
-      </b-tab>
-
-    </b-tabs>
-      <div>
-        ${result}
+        ${$t("setting.language")}
+        <b-form-select v-model="selectedLanguage" :options="languageOptions" class="mb-3" />
       </div>
     </div>
   </body>
@@ -227,6 +236,18 @@
       return data;
     }
 
+    function getLocalSettings(){
+      const localSettingsStr = localStorage.getItem("settings");
+      localSettings = JSON.parse(localSettingsStr)? JSON.parse(localSettingsStr): {};
+      return localSettings
+    }
+
+    function setLocalSettings(key, value){
+      const localSettings = getLocalSettings();
+      localSettings[key] = value
+      localStorage.setItem("settings", JSON.stringify(localSettings));
+    }
+
     function parseFile(file, chunkSize){
         var fileSize = file.size;
         var readerLoad = function(e){
@@ -247,14 +268,20 @@
     axios.get("statics/i18n/main.json")
       .then((res) => {
 
-    let language = (window.navigator.languages && window.navigator.languages[0]) ||
-              window.navigator.language ||
-              window.navigator.userLanguage ||
-              window.navigator.browserLanguage;
+    var localSettings = getLocalSettings();
 
-    language = language? language.split("-")[0]: "en"
+    if(localSettings["language"]){
+      var language = localSettings["language"]
+    }else{
+      var language = (window.navigator.languages && window.navigator.languages[0]) ||
+                      window.navigator.language ||
+                      window.navigator.userLanguage ||
+                      window.navigator.browserLanguage;
+      language = language? language.split("-")[0]: "en"
+      setLocalSettings("language", language)
+
+    }
     console.log(language);
-
 
     const translations = res.data;
     Vue.use(VueI18n);
@@ -278,6 +305,9 @@
         learningProgress: 0,
         learningNumIter: 0,
         uploadFile: null,
+        languageOptions: [],
+        selectedMenu: "data",
+        selectedLanguage: language,
         chartOptions: {responsive: false, maintainAspectRatio: false},
         accuracyTrainChartData: {
           labels: [],
@@ -329,6 +359,12 @@
         result: ""
       },
       methods: {
+        changeMenu: function(menu){
+          this.selectedMenu = menu;
+        },
+        changeLang: function(lang){
+          this.selectedLanguage = lang;
+        },
         startLearning: function(){
           req = {
             "action": "start_learing",
@@ -421,6 +457,12 @@
           };
         }
       },
+      watch: {
+        selectedLanguage: function(newLocale, oldLocale){
+          this.$i18n.locale = newLocale;
+          setLocalSettings("language", newLocale)
+        }
+      },
 
       computed: {
         recipeOptions: function(){
@@ -450,6 +492,10 @@
       mounted: function (){
         this.setRecipeFields();
         this.setDataFields();
+        this.languageOptions = [
+          { value: "en", text: "English" },
+          { value: "ja", text: "日本語" }
+        ]
 
         this.ws.onopen = () => {
           console.log("ws open.");
