@@ -67,7 +67,7 @@
             <template slot="title">
               ${$t("tab.data.list")}
             </template>
-            <b-table :items="learningData" :fields="dataFields" striped hover>
+            <b-table :items="learningData" :fields="dataFields" hover>
               <template slot="showDetails" slot-scope="row">
                 <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
                   ${ row.detailsShowing ? 'Hide' : 'Show'} Details
@@ -131,7 +131,7 @@
             <template slot="title">
               ${$t("tab.recipe.list")}
             </template>
-            <b-table :items="recipes" :fields="recipeFields" striped hover>
+            <b-table :items="recipes" :fields="recipeFields" hover>
               <template slot="showDetails" slot-scope="row">
                 <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
                   ${ row.detailsShowing ? 'Hide' : 'Show'} Details
