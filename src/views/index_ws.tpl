@@ -69,7 +69,7 @@
             </template>
             <b-table :items="learningData" :fields="dataFields" hover>
               <template slot="showDetails" slot-scope="row">
-                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
+                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
                   ${ row.detailsShowing ? 'Hide' : 'Show'} Details
               </b-button>
               </template>
@@ -103,7 +103,7 @@
                     <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
                     <b-col>${ row.item.update_time }</b-col>
                   </b-row>
-                  <b-button size="sm" @click="row.toggleDetails" variant="success">Hide Details</b-button>
+                  <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button>
                 </b-card>
               </template>
             </b-table>
@@ -116,8 +116,8 @@
               <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder=""></b-form-file>
               <br>
               <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">Upload</b-button>
-              <p v-if="progress > 0">
-                <b-progress height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
+              <p v-if="progress > 0 && uploadFile">
+                <b-progress class="progress" height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
               </p>
             </p>
           </b-tab>
@@ -133,7 +133,7 @@
             </template>
             <b-table :items="recipes" :fields="recipeFields" hover>
               <template slot="showDetails" slot-scope="row">
-                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2" variant="success">
+                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
                   ${ row.detailsShowing ? 'Hide' : 'Show'} Details
                 </b-button>
               </template>
@@ -157,7 +157,7 @@
                       <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
                     </b-col>
                   </b-row>
-                  <b-button size="sm" @click="row.toggleDetails" variant="success">Hide Details</b-button>
+                  <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button>
                 </b-card>
               </template>
             </b-table>
@@ -181,12 +181,12 @@
           ${$t("element.recipe")}: <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-51 mb-3 w-50" />
         </p>
         <p>
-          <b-button variant="success" v-on:click="startLearning" v-bind:disabled="!selectedRecipe || !selectedLearningData">
+          <b-button v-on:click="startLearning" v-bind:disabled="!selectedRecipe || !selectedLearningData">
             ${$t("element.startToLearn")}
           </b-button>
         </p>
-        <p v-if="learningProgress > 0">
-          <b-progress height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
+        <p v-show="learningProgress > 0">
+          <b-progress class="progress" height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
         </p>
         <draggable @choose="dragChoose" @end="dragEnd" v-on:blur="dragBlur">
           <div>
@@ -216,7 +216,7 @@
     </div>
   </body>
   <script type="text/javascript">
-    //var host = "localhost:8081";
+    const themeColor = "#850491";
     const host = location.host;
     const url = "ws://"+host+"/connect";
 
@@ -265,6 +265,7 @@
           })(file, i);
         }
     }
+
     axios.get("statics/i18n/main.json")
       .then((res) => {
 
@@ -295,6 +296,7 @@
       i18n: i18n,
       el: '#app',
       data: {
+        themeColor: themeColor,
         ws : new WebSocket(url),
         recipes: [],
         learningData: [],
@@ -315,7 +317,7 @@
             {
               label: "train_accuracy",
               fill: false,
-              backgroundColor: '#0EE5D5',
+              backgroundColor: themeColor,
               data: []
             }
           ]
@@ -326,7 +328,7 @@
             {
               label: "train_loss",
               fill: false,
-              backgroundColor: '#0EE5D5',
+              backgroundColor: themeColor,
               data: []
             }
           ]
@@ -468,7 +470,8 @@
         recipeOptions: function(){
           const recipeOptions = []
           this.recipes.forEach((v) => {
-            const option = {"value": v, "text": v["name"]+" ("+v["id"]+")"};
+            const text = v["name"]? v["name"]+" ("+v["id"]+")": v["id"]
+            const option = {"value": v, "text": text};
             if(!v["body"]){
               option["disabled"]= true
             }
