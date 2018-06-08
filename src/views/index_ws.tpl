@@ -158,6 +158,7 @@
                     </b-col>
                   </b-row>
                   <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button>
+                  <b-button size="sm" @click="deleteRecipe(row)">${$t("button.delete")}</b-button>
                 </b-card>
               </template>
             </b-table>
@@ -361,6 +362,15 @@
         result: ""
       },
       methods: {
+        deleteRecipe: function(row){
+          const recipeId = row.item.id;
+          console.log(recipeId);
+          const req = {
+            action: "deleteRecipe",
+            recipeId: recipeId
+          }
+          this.sendMessage(req)
+        },
         changeMenu: function(menu){
           this.selectedMenu = menu;
         },
@@ -523,6 +533,15 @@
               console.log(this.learningData);
             }else if (res["action"] == "get_recipe_list") {
               this.recipes = res["list"]
+            }else if (res["action"] == "deleteRecipe") {
+              console.log(res);
+              for(let i=0; i< this.recipes.length; i++){
+                if(this.recipes[i].id == res.recipeId){
+                  var deleteId = i;
+                  break;
+                }
+              }
+              this.$delete(this.recipes, deleteId);
             }else if(res["action"] == "learning"){
               this.learningNumIter = res["nIter"]
               this.learningProgress = res["iter"]

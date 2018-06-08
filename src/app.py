@@ -103,6 +103,13 @@ def handler(wsock, message):
             model = CNN(recipe_id)
             model.train(data_id, wsock)
 
+        elif obj["action"] == "deleteRecipe":
+            recipe_id = obj["recipeId"]
+            res = fm.delete_recipe(recipe_id)
+            res["action"] = obj["action"]
+            res["recipeId"] = recipe_id
+            wsock.send(json.dumps(res))
+
     except (UnicodeDecodeError, json.decoder.JSONDecodeError):
         d["size"] += len(message)
         d["uploading_file"] += message
