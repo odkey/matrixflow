@@ -10,7 +10,22 @@
       "add": "新規追加",
       "close": "閉じる",
       "delete": "削除",
-      "showDetail": "詳細表示"
+      "showDetails": "詳細表示"
+    },
+    "table": {
+      "name": "名前",
+      "description": "説明",
+      "createTime": "作成日",
+      "updateTime": "更新日",
+      "details": "詳細"
+    },
+    "data":{
+      "id": "データID",
+      "nImages": "画像数",
+      "nLabels": "ラベル数"
+    },
+    "recipe":{
+      "id": "レシピID"
     },
     "tab":{
       "menu":{
@@ -45,7 +60,22 @@
       "add": "Add",
       "close": "Close",
       "delete": "Delete",
-      "showDetail": "Show Detail"
+      "showDetails": "Show Detail"
+    },
+    "table": {
+      "name": "Name",
+      "description": "Description",
+      "createTime": "Create Time",
+      "updateTime": "Update Time",
+      "details": "Details"
+    },
+    "data":{
+      "id": "Deta ID",
+      "nImages": "Number of Images",
+      "nLabels": "Number of Labels"
+    },
+    "recipe":{
+      "id": "Recipe ID"
     },
     "tab":{
       "menu":{

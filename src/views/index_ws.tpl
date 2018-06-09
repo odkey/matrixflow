@@ -70,37 +70,37 @@
             <b-table :items="learningData" :fields="dataFields" hover>
               <template slot="showDetails" slot-scope="row">
                 <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
-                  ${ row.detailsShowing ? $t("button.close") : $t("button.showDetail")}
+                  ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
               </b-button>
               </template>
               <template slot="row-details" slot-scope="row">
                 <b-card>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>id:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("data.id")}:</b></b-col>
                     <b-col>${ row.item.id }</b-col>
                   </b-row>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>name:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
                     <b-col>${ row.item.name }</b-col>
                   </b-row>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>description:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
                     <b-col>${ row.item.description }</b-col>
                   </b-row>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>createTime:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
                     <b-col>${ row.item.create_time }</b-col>
                   </b-row>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>number of images:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("data.nImages")}:</b></b-col>
                     <b-col>${ row.item.nImages }</b-col>
                   </b-row>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>number of labels:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("data.nLabels")}:</b></b-col>
                     <b-col>${ row.item.nLabels }</b-col>
                   </b-row>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
                     <b-col>${ row.item.update_time }</b-col>
                   </b-row>
                   <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
@@ -134,21 +134,21 @@
             <b-table :items="recipes" :fields="recipeFields" hover>
               <template slot="showDetails" slot-scope="row">
                 <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
-                  ${ row.detailsShowing ? $t("button.close") : $t("button.showDetail")}
+                  ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
                 </b-button>
               </template>
               <template slot="row-details" slot-scope="row">
                 <b-card>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>id:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("recipe.id")}:</b></b-col>
                     <b-col>${ row.item.id }</b-col>
                   </b-row>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>createTime:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
                     <b-col>${ row.item.create_time }</b-col>
                   </b-row>
                   <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
+                    <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
                     <b-col>${ row.item.update_time }</b-col>
                   </b-row>
                   <b-row>
@@ -423,19 +423,19 @@
         setRecipeFields: function(){
           this.recipeFields = {
             id: {
-              label: "id",
+              label: this.$i18n.t("recipe.id"),
               sortable: false
             },
-            create_time: {
-              label: "createTime",
+            update_time: {
+              label: this.$i18n.t("table.updateTime"),
               sortable: true,
             },
-            update_time: {
-              label: "updateTime",
+            create_time: {
+              label: this.$i18n.t("table.createTime"),
               sortable: true,
             },
             showDetails: {
-              label: "details",
+              label: this.$i18n.t("table.details"),
               sortable: false,
             }
           };
@@ -443,27 +443,27 @@
         setDataFields: function(){
           this.dataFields = {
             id: {
-              label: "id",
+              label: this.$i18n.t("data.id"),
               sortable: false
             },
             name: {
-              label: "name",
+              label: this.$i18n.t("table.name"),
               sortable: true,
             },
             description: {
-              label: "description",
+              label: this.$i18n.t("table.description"),
               sortable: false,
             },
-            create_time: {
-              label: "createTime",
+            update_time: {
+              label: this.$i18n.t("table.updateTime"),
               sortable: true,
             },
-            update_time: {
-              label: "updateTime",
+            create_time: {
+              label: this.$i18n.t("table.createTime"),
               sortable: true,
             },
             showDetails: {
-              label: "details",
+              label: this.$i18n.t("table.details"),
               sortable: false,
             }
           };
