@@ -6,6 +6,12 @@
       "data": "データ",
       "startToLearn": "学習開始"
     },
+    "button":{
+      "add": "新規追加",
+      "close": "閉じる",
+      "delete": "削除",
+      "showDetail": "詳細表示"
+    },
     "tab":{
       "menu":{
         "data": "データ管理",
@@ -34,6 +40,12 @@
       "recipe": "Recipe",
       "data": "Data",
       "startToLearn": "Start to Learn"
+    },
+    "button":{
+      "add": "Add",
+      "close": "Close",
+      "delete": "Delete",
+      "showDetail": "Show Detail"
     },
     "tab":{
       "menu":{

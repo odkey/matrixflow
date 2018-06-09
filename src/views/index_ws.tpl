@@ -70,7 +70,7 @@
             <b-table :items="learningData" :fields="dataFields" hover>
               <template slot="showDetails" slot-scope="row">
                 <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
-                  ${ row.detailsShowing ? 'Hide' : 'Show'} Details
+                  ${ row.detailsShowing ? $t("button.close") : $t("button.showDetail")}
               </b-button>
               </template>
               <template slot="row-details" slot-scope="row">
@@ -103,7 +103,7 @@
                     <b-col sm="3" class="text-sm-right"><b>updateTime:</b></b-col>
                     <b-col>${ row.item.update_time }</b-col>
                   </b-row>
-                  <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button>
+                  <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
                 </b-card>
               </template>
             </b-table>
@@ -134,7 +134,7 @@
             <b-table :items="recipes" :fields="recipeFields" hover>
               <template slot="showDetails" slot-scope="row">
                 <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
-                  ${ row.detailsShowing ? 'Hide' : 'Show'} Details
+                  ${ row.detailsShowing ? $t("button.close") : $t("button.showDetail")}
                 </b-button>
               </template>
               <template slot="row-details" slot-scope="row">
@@ -157,7 +157,7 @@
                       <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
                     </b-col>
                   </b-row>
-                  <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button>
+                  <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
                   <b-button size="sm" @click="deleteRecipe(row)">${$t("button.delete")}</b-button>
                 </b-card>
               </template>
