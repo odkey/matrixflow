@@ -62,56 +62,10 @@
 
     <div v-show="selectedMenu == 'data'">
       <h2>${$t("tab.menu.data")}</h2>
-        <b-tabs class="inner-tab">
-          <b-tab active>
-            <template slot="title">
-              ${$t("tab.data.list")}
-            </template>
-            <b-table :items="learningData" :fields="dataFields" hover>
-              <template slot="showDetails" slot-scope="row">
-                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
-                  ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
-              </b-button>
-              </template>
-              <template slot="row-details" slot-scope="row">
-                <b-card>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("data.id")}:</b></b-col>
-                    <b-col>${ row.item.id }</b-col>
-                  </b-row>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
-                    <b-col>${ row.item.name }</b-col>
-                  </b-row>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
-                    <b-col>${ row.item.description }</b-col>
-                  </b-row>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
-                    <b-col>${ row.item.create_time }</b-col>
-                  </b-row>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("data.nImages")}:</b></b-col>
-                    <b-col>${ row.item.nImages }</b-col>
-                  </b-row>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("data.nLabels")}:</b></b-col>
-                    <b-col>${ row.item.nLabels }</b-col>
-                  </b-row>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
-                    <b-col>${ row.item.update_time }</b-col>
-                  </b-row>
-                  <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
-                </b-card>
-              </template>
-            </b-table>
-          </b-tab>
-          <b-tab>
-            <template slot="title">
-              ${$t("tab.data.add")}
-            </template>
+      <div>
+        <b-btn v-b-toggle.data-add variant="secondary">${showAddData? $t("button.close"):$t("button.add")}</b-btn>
+        <b-collapse id="data-add" class="mt-2" v-model="showAddData">
+          <b-card>
             <p>
               <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder=""></b-form-file>
               <br>
@@ -120,57 +74,94 @@
                 <b-progress class="progress" height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
               </p>
             </p>
-          </b-tab>
-        </b-tabs>
+          </b-card>
+        </b-collapse>
       </div>
+      <b-table :items="learningData" :fields="dataFields" hover>
+        <template slot="showDetails" slot-scope="row">
+          <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
+            ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
+        </b-button>
+        </template>
+        <template slot="row-details" slot-scope="row">
+          <b-card>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("data.id")}:</b></b-col>
+              <b-col>${ row.item.id }</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
+              <b-col>${ row.item.name }</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
+              <b-col>${ row.item.description }</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
+              <b-col>${ row.item.create_time }</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("data.nImages")}:</b></b-col>
+              <b-col>${ row.item.nImages }</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("data.nLabels")}:</b></b-col>
+              <b-col>${ row.item.nLabels }</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
+              <b-col>${ row.item.update_time }</b-col>
+            </b-row>
+            <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
+          </b-card>
+        </template>
+      </b-table>
+    </div>
 
       <div v-show="selectedMenu == 'recipe'">
         <h2>${$t("tab.menu.recipe")}</h2>
-        <b-tabs class="inner-tab">
-          <b-tab>
-            <template slot="title">
-              ${$t("tab.recipe.list")}
-            </template>
-            <b-table :items="recipes" :fields="recipeFields" hover>
-              <template slot="showDetails" slot-scope="row">
-                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
-                  ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
-                </b-button>
-              </template>
-              <template slot="row-details" slot-scope="row">
-                <b-card>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("recipe.id")}:</b></b-col>
-                    <b-col>${ row.item.id }</b-col>
-                  </b-row>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
-                    <b-col>${ row.item.create_time }</b-col>
-                  </b-row>
-                  <b-row class="mb-2">
-                    <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
-                    <b-col>${ row.item.update_time }</b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col sm="3" class="text-sm-right"></b-col>
-                    <b-col>
-                      <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
-                    </b-col>
-                  </b-row>
-                  <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
-                  <b-button size="sm" @click="deleteRecipe(row)">${$t("button.delete")}</b-button>
-                </b-card>
-              </template>
-            </b-table>
-          </b-tab>
-
-          <b-tab>
-            <template slot="title">
-              ${$t("tab.recipe.add")}
-            </template>
-          </b-tab>
-
-        </b-tabs>
+        <div>
+          <b-btn v-b-toggle.data-add variant="secondary">${showAddRecipe? $t("button.close"):$t("button.add")}</b-btn>
+          <b-collapse id="data-add" class="mt-2" v-model="showAddRecipe">
+            <b-card>
+              <p>
+                add
+              </p>
+            </b-card>
+          </b-collapse>
+        </div>
+        <b-table :items="recipes" :fields="recipeFields" hover>
+          <template slot="showDetails" slot-scope="row">
+            <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
+              ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
+            </b-button>
+          </template>
+          <template slot="row-details" slot-scope="row">
+            <b-card>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("recipe.id")}:</b></b-col>
+                <b-col>${ row.item.id }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
+                <b-col>${ row.item.create_time }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
+                <b-col>${ row.item.update_time }</b-col>
+              </b-row>
+              <b-row>
+                <b-col sm="3" class="text-sm-right"></b-col>
+                <b-col>
+                  <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
+                </b-col>
+              </b-row>
+              <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
+              <b-button size="sm" @click="deleteRecipe(row)">${$t("button.delete")}</b-button>
+            </b-card>
+          </template>
+        </b-table>
       </div>
 
       <div v-show="selectedMenu == 'learning'">
@@ -308,6 +299,8 @@
         learningProgress: 0,
         learningNumIter: 0,
         uploadFile: null,
+        showAddData: false,
+        showAddRecipe: false,
         languageOptions: [],
         selectedMenu: "data",
         selectedLanguage: language,

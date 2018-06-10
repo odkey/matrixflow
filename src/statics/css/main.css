@@ -26,3 +26,7 @@ button {
 div.progress-bar.progress-bar-striped.progress-bar-animated{
   background-color: #850491;
 }
+
+table {
+  margin-top: 10px;
+}
