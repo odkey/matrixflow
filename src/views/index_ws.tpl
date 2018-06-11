@@ -66,16 +66,30 @@
         <b-btn v-b-toggle.data-add variant="secondary">${showAddData? $t("button.close"):$t("button.add")}</b-btn>
         <b-collapse id="data-add" class="mt-2" v-model="showAddData">
           <b-card>
-            <p>
-              <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder=""></b-form-file>
-              <br>
-              <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">Upload</b-button>
-              <p v-if="progress > 0 && uploadFile">
-                <b-progress class="progress" height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
-              </p>
-            </p>
-          </b-card>
-        </b-collapse>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("data.images")}(${$t("data.zip")} ):</b></b-col>
+              <!--
+              <b-col>
+                <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder="" directory></b-form-file>
+              </b-col>
+            -->
+              <b-col>
+                <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder="" accept=".zip"></b-form-file>
+              </b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
+            <b-col>
+            </b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">Upload</b-button>
+          </b-row>
+        </b-card>
+        <p v-if="uploadFile">
+          <b-progress class="progress" height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
+        </p>
+       </b-collapse>
       </div>
       <b-table :items="learningData" :fields="dataFields" hover>
         <template slot="showDetails" slot-scope="row">
@@ -355,6 +369,23 @@
         result: ""
       },
       methods: {
+        parseFile: function(file, chunkSize){
+            var fileSize = file.size;
+            var readerLoad = (e)=>{
+              var body = e.target.result;
+              this.ws.send(body);
+            };
+            for(var i = 0; i < fileSize; i += chunkSize) {
+              console.log(i);
+              (function(fil, start) {
+                  var reader = new FileReader();
+                  var blob = fil.slice(start, chunkSize + start);
+                  reader.onload = readerLoad;
+                  //reader.readAsText(blob);
+                  reader.readAsArrayBuffer(blob)
+              })(file, i);
+            }
+        },
         deleteRecipe: function(row){
           const recipeId = row.item.id;
           console.log(recipeId);
@@ -397,14 +428,14 @@
           e.target.className = "";
         },
         uploadData: function(){
-          var fileSize = this.uploadFile.size
-          var request = {
-            action: "upload",
+          const fileSize = this.uploadFile.size;
+          const request = {
+            action: "startUploading",
             fileSize: fileSize
-          }
+          };
           this.progress = 1;
           this.sendMessage(request);
-          parseFile(this.uploadFile, 20);
+          this.parseFile(this.uploadFile, 2000);
         },
         sendMessage: function(msg){
           this.ws.send(JSON.stringify(msg));

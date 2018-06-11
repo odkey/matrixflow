@@ -81,8 +81,8 @@ def handler(wsock, message):
     try:
         obj = json.loads(message)
         print(obj)
-        if obj["action"] == "upload":
-            pass
+        if obj["action"] == "startUploading":
+            d["file_size"] = obj.get("fileSize", 0)
 
         elif obj["action"] == "get_data_list":
             offset = obj.get("offset", 0)
@@ -111,6 +111,7 @@ def handler(wsock, message):
             wsock.send(json.dumps(res))
 
     except (UnicodeDecodeError, json.decoder.JSONDecodeError):
+        print(type(message))
         d["size"] += len(message)
         d["uploading_file"] += message
         response = {"status": "loading", "loadedSize": d["size"]}
@@ -118,8 +119,9 @@ def handler(wsock, message):
         wsock.send(json.dumps(response))
         if d["size"] == int(d["file_size"]):
             uploading_file = d["uploading_file"]
-            file_id = put_upload_file(uploading_file)
-            response = {"status": "loaded", "fileId": file_id}
+            print(d)
+            file_id = fm.put_zip_file(uploading_file, is_expanding=True)
+            response = {"action": "uploaded", "fileId": file_id}
             wsock.send(json.dumps(response))
 
 

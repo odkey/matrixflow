@@ -3,6 +3,7 @@ import shutil
 import hashlib
 import datetime
 import json
+import zipfile
 from pathlib import Path
 
 recipe_dir = "./recipes"
@@ -70,6 +71,23 @@ def get_content_type(name):
         ext = "jpeg"
     content_type = "image/"+ext
     return content_type
+
+def put_zip_file(file, is_expanding=False):
+    dir_name = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    p = Path(data_dir) / dir_name
+    os.makedirs(p)
+    file_path = p / "image.zip"
+    with open(file_path, "wb") as f:
+        f.write(file)
+
+    if is_expanding:
+        image_path = p / "data"
+        with zipfile.ZipFile(file_path) as existing_zip:
+            try:
+                existing_zip.extractall(image_path)
+            except Exception as e:
+                print(e)
+        #os.remove(file_path)
 
 
 def get_data_list():
