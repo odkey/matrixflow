@@ -83,7 +83,7 @@
             </b-col>
           </b-row>
           <b-row class="mb-2">
-            <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">Upload</b-button>
+            <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">${$t("button.upload")}</b-button>
           </b-row>
         </b-card>
         <p v-if="uploadFile">

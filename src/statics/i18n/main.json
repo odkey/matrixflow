@@ -10,6 +10,7 @@
       "add": "新規追加",
       "close": "閉じる",
       "delete": "削除",
+      "upload": "アップロード",
       "showDetails": "詳細表示"
     },
     "table": {
@@ -62,6 +63,7 @@
       "add": "Add",
       "close": "Close",
       "delete": "Delete",
+      "upload": "Upload",
       "showDetails": "Show Detail"
     },
     "table": {
