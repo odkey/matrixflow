@@ -81,7 +81,7 @@ def put_zip_file(file, is_expanding=False):
         f.write(file)
 
     if is_expanding:
-        image_path = p / "data"
+        image_path = p
         with zipfile.ZipFile(file_path) as existing_zip:
             try:
                 existing_zip.extractall(image_path)
