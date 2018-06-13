@@ -77,7 +77,9 @@ def delete_recipe(recipe_id):
 
 
 def handler(wsock, message):
-    d = dictionary[wsock]
+    d = dictionary[str(wsock)]
+    log_debug(dictionary.keys())
+    log_debug(d["size"])
     try:
         obj = json.loads(message)
         print(obj)
@@ -119,7 +121,6 @@ def handler(wsock, message):
         wsock.send(json.dumps(response))
         if d["size"] == int(d["file_size"]):
             uploading_file = d["uploading_file"]
-            print(d)
             file_id = fm.put_zip_file(uploading_file, is_expanding=True)
             response = {"action": "uploaded", "fileId": file_id}
             wsock.send(json.dumps(response))
@@ -133,7 +134,7 @@ def handle_websocket():
     global dictionary
 
     if wsock not in dictionary:
-        dictionary[wsock] = {
+        dictionary[str(wsock)] = {
             "num": None,
             "file_size": 0,
             "size": 0,
@@ -145,6 +146,7 @@ def handle_websocket():
             message = wsock.receive()
             gevent.spawn(handler, wsock, message)
         except WebSocketError:
+            print("close")
             break
 
 
