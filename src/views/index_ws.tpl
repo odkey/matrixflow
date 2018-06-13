@@ -254,24 +254,6 @@
       localStorage.setItem("settings", JSON.stringify(localSettings));
     }
 
-    function parseFile(file, chunkSize){
-        var fileSize = file.size;
-        var readerLoad = function(e){
-          var body = e.target.result;
-          ws.send(body);
-        };
-        for(var i = 0; i < fileSize; i += chunkSize) {
-          console.log(i);
-          (function(fil, start) {
-              var reader = new FileReader();
-              var blob = fil.slice(start, chunkSize + start);
-              reader.onload = readerLoad;
-              //reader.readAsText(blob);
-              reader.readAsArrayBuffer(blob)
-          })(file, i);
-        }
-    }
-
     axios.get("statics/i18n/main.json")
       .then((res) => {
 
