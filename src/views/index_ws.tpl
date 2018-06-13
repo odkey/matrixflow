@@ -352,21 +352,17 @@
       },
       methods: {
         parseFile: function(file, chunkSize){
-            var fileSize = file.size;
-            var readerLoad = (e)=>{
-              var body = e.target.result;
-              this.ws.send(body);
-            };
+          var fileSize = file.size;
+          var reader = new FileReader();
+
+          reader.onload = (e) =>{
+            var body = e.target.result;
             for(var i = 0; i < fileSize; i += chunkSize) {
-              console.log(i);
-              (function(fil, start) {
-                  var reader = new FileReader();
-                  var blob = fil.slice(start, chunkSize + start);
-                  reader.onload = readerLoad;
-                  //reader.readAsText(blob);
-                  reader.readAsArrayBuffer(blob)
-              })(file, i);
+              var chunk = body.slice(i, chunkSize + i);
+              this.ws.send(chunk);
             }
+          };
+          reader.readAsArrayBuffer(file)
         },
         deleteRecipe: function(row){
           const recipeId = row.item.id;
@@ -417,7 +413,7 @@
           };
           this.progress = 1;
           this.sendMessage(request);
-          this.parseFile(this.uploadFile, 2000);
+          this.parseFile(this.uploadFile, 10000);
         },
         sendMessage: function(msg){
           this.ws.send(JSON.stringify(msg));
