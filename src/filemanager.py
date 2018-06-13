@@ -104,11 +104,17 @@ def get_data_list():
         n_images = len(list(images.glob("*")))
         print(n_images)
         print(images, labels, info)
-        with open(info, "r") as f:
-            body = json.load(f)
+        if info.exists():
+            with open(info, "r") as f:
+                body = json.load(f)
+        else:
+            body = {}
 
-        with open(labels, "r") as f:
-            n_labels = len(f.readlines())
+        if labels.exists():
+            with open(labels, "r") as f:
+                n_labels = len(f.readlines())
+        else:
+            n_labels = 0
 
         epoch_time = os.path.getctime(j)
         create_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
