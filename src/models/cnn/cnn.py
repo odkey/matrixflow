@@ -20,6 +20,7 @@ class CNN(Model):
         self.ima = ImageManager()
         self.recipe = self.rma.load_recipe(recipe_path=recipe_id)
         self.methods = dict(inspect.getmembers(self, inspect.ismethod))
+        self.edge_dict = defaultdict(list)
         print(json.dumps(self.recipe, indent=2))
 
 
@@ -29,18 +30,19 @@ class CNN(Model):
                 self.edge_dict[target].remove(id)
                 self.edge_dict[target].append(output)
 
-
-    def build_nn(self):
-        layers = self.recipe["layers"]
+    def _generate_edge_dict(self):
         edges = self.recipe["edges"]
-        self.edge_dict = defaultdict(list)
         for e in edges:
             source = e["sourceId"]
             target = e["targetId"]
             self.edge_dict[target].append(source)
         print('"target":["source"]')
         print(self.edge_dict)
-        output = None
+
+
+    def build_nn(self):
+        self._generate_edge_dict()
+        layers = self.recipe["layers"]
         for layer in layers:
             name = layer["name"]
             id = layer["id"]
