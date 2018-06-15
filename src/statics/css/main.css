@@ -30,3 +30,18 @@ div.progress-bar.progress-bar-striped.progress-bar-animated{
 table {
   margin-top: 10px;
 }
+
+.cy {
+    width: 100%;
+    height: 1000px;
+    position: absolute;
+    z-index: 1000;
+}
+
+.recipe-graph {
+  width: 90%;
+  height: 1000px;
+  position: relative;
+  background-color: white;
+  border: medium solid #efefef;
+}

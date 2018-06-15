@@ -16,6 +16,7 @@
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 
     <script src="statics/js/vue-i18n.js"></script>
+    <script src="statics/js/cytoscape.js"></script>
 
     <link type="text/css" rel="stylesheet" href="statics/css/main.css"/>
 
@@ -59,7 +60,6 @@
 
       </b-collapse>
     </b-navbar>
-
     <div v-show="selectedMenu == 'data'">
       <h2>${$t("tab.menu.data")}</h2>
       <div>
@@ -154,7 +154,7 @@
         </div>
         <b-table :items="recipes" :fields="recipeFields" hover>
           <template slot="showDetails" slot-scope="row">
-            <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
+            <b-button size="sm" @click.stop="showRecipe(row)" class="mr-2">
               ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
             </b-button>
           </template>
@@ -165,6 +165,14 @@
                 <b-col>${ row.item.id }</b-col>
               </b-row>
               <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
+                <b-col>${ row.item.body.info.name }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
+                <b-col>${ row.item.body.info.description }</b-col>
+              </b-row>
+              <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
                 <b-col>${ row.item.create_time }</b-col>
               </b-row>
@@ -172,7 +180,15 @@
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
                 <b-col>${ row.item.update_time }</b-col>
               </b-row>
-              <b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"></b-col>
+                <b-col>
+                  <div class="recipe-graph">
+                    <div class="cy"></div>
+                  </div>
+                </b-col>
+              </b-row>
+              <b-row v-if=false>
                 <b-col sm="3" class="text-sm-right"></b-col>
                 <b-col>
                   <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
@@ -260,6 +276,8 @@
       localSettings[key] = value
       localStorage.setItem("settings", JSON.stringify(localSettings));
     }
+
+
 
     axios.get("statics/i18n/main.json")
       .then((res) => {
@@ -362,6 +380,86 @@
         result: ""
       },
       methods: {
+        showRecipe: function(row){
+          row.toggleDetails();
+          this.$nextTick(()=>{
+            this.buildGraph(row.item);
+          });
+        },
+        buildGraph: function(recipe){
+          const body = recipe.body;
+          const layers = body.layers;
+          const edges = body.edges;
+          const elem = document.getElementsByClassName("cy");
+          const cy = cytoscape({
+            container: elem,
+            elements: [],
+            style: [
+              {
+                selector: 'edge',
+                style: {
+                  'curve-style': 'bezier',
+                  'target-arrow-shape': 'triangle',
+                  'width': 4,
+                  'line-color': '#ddd',
+                  'target-arrow-color': '#ddd'
+                }
+              },
+              {
+                selector: 'node',
+                style: {
+                  shape: "rectangle",
+                  width: 'mapData(weight, 40, 80, 20, 60)',
+                  label: 'data(name)',
+                  color: "#fff",
+                  'text-outline-width': 2,
+                  'text-outline-color': 'data(faveColor)',
+                  'background-color': 'data(faveColor)',
+                  'text-valign': 'center',
+                  'text-halign': 'center'
+                }
+              }
+            ],
+            layout: {
+              directed: true,
+              padding: 10,
+              name: 'breadthfirst'
+            }
+          });
+          const recipeId = "32423432"
+          const idList = []
+          layers.forEach(v=>{
+            const id = v["id"];
+              const node =  {
+                data: {
+                  id: id,
+                  name: v["name"],
+                  weight: 150,
+                  faveColor: this.themeColor,
+                  faveShape: 'circle'
+                }
+              };
+              cy.add(node);
+          });
+          edges.forEach((e, i)=>{
+            const edge = {
+              data: {
+                id: 'edge' + i,
+                source: e.sourceId,
+                target: e.targetId
+              }
+            };
+            cy.add(edge);
+          });
+
+          var options =  {
+            directed: true,
+            padding: 10,
+            name: 'breadthfirst'
+          }
+          var layout = cy.elements().layout(options);
+          layout.run();
+        },
         parseFile: function(file, chunkSize){
           var fileSize = file.size;
           var reader = new FileReader();
@@ -439,6 +537,14 @@
           this.recipeFields = {
             id: {
               label: this.$i18n.t("recipe.id"),
+              sortable: false
+            },
+            "body.info.name": {
+              label: this.$i18n.t("table.name"),
+              sortable: true
+            },
+            "body.info.description": {
+              label: this.$i18n.t("table.description"),
               sortable: false
             },
             update_time: {
@@ -525,6 +631,7 @@
           { value: "ja", text: "日本語" }
         ]
 
+
         this.ws.onopen = () => {
           console.log("ws open.");
           const recipes_req = {"action": "get_recipe_list"};
@@ -537,8 +644,6 @@
           console.log("we close.");
           console.log(e);
         };
-
-
 
         this.ws.onmessage = (evt) => {
             const res  = JSON.parse(evt.data)
