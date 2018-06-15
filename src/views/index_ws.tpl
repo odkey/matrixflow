@@ -80,10 +80,17 @@
           <b-row class="mb-2">
             <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
             <b-col>
+              <b-form-input v-model="newData.name" type="text" placeholder=""></b-form-input>
             </b-col>
           </b-row>
           <b-row class="mb-2">
-            <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile">${$t("button.upload")}</b-button>
+            <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
+            <b-col>
+              <b-form-textarea v-model="newData.description" placeholder="" :rows="3" :max-rows="6">
+            </b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile || !newData.name">${$t("button.upload")}</b-button>
           </b-row>
         </b-card>
         <p v-if="uploadFile">
@@ -292,6 +299,10 @@
         selectedLearningData: "",
         recipeFields: {},
         dataFields: {},
+        newData: {
+          name: "",
+          description: ""
+        },
         learningProgress: 0,
         learningNumIter: 0,
         uploadFile: null,
@@ -409,6 +420,8 @@
           const fileSize = this.uploadFile.size;
           const request = {
             action: "startUploading",
+            name: this.newData.name,
+            description: this.newData.description,
             fileSize: fileSize
           };
           this.progress = 1;

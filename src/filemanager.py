@@ -55,6 +55,17 @@ def create_save_dir(path="var/tmp"):
     if not os.path.exists(abs_path):
         os.makedirs(abs_path)
 
+def generate_id():
+    """
+     generate ids which are same as file paths.
+    """
+    return datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+def save_json(obj, file_path):
+    with open(file_path, "w") as f:
+        json.dump(obj, f, indent=2)
+
+
 
 def get_save_path(id):
     save_path = os.path.join(os.getcwd(), "var/tmp", id)
@@ -72,10 +83,13 @@ def get_content_type(name):
     content_type = "image/"+ext
     return content_type
 
-def put_zip_file(file, is_expanding=False):
-    dir_name = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    p = Path(data_dir) / dir_name
-    os.makedirs(p)
+def put_zip_file(file, file_id, is_expanding=False):
+    """
+      file: bitearray
+      file_id: string
+    """
+    p = Path(data_dir) / file_id
+    os.makedirs(p, exist_ok=True)
     file_path = p / "image.zip"
     with open(file_path, "wb") as f:
         f.write(file)
@@ -86,8 +100,18 @@ def put_zip_file(file, is_expanding=False):
             try:
                 existing_zip.extractall(image_path)
             except Exception as e:
+                os.remove(file_path)
                 print(e)
-        #os.remove(file_path)
+                return {"status": "error"}
+        os.remove(file_path)
+    return {"status": "success"}
+
+def put_data_info(new_data, file_id):
+    p = Path(data_dir) / file_id / "info"
+    os.makedirs(p, exist_ok=True)
+    file_path = p / "info.json"
+    save_json(new_data, file_path)
+
 
 
 def get_data_list():
@@ -146,8 +170,7 @@ def save_recipe(obj):
     dir_path = os.path.join(recipe_dir, dir_name)
     create_save_dir(dir_path)
     file_path = os.path.join(dir_path, "recipe.json")
-    with open(file_path, "w") as f:
-        json.dump(obj, f, indent=2)
+    save_json(obj, file_path)
     res = {
         "status": "success",
         "data_type": "detail",
@@ -205,8 +228,7 @@ def get_recipe(id):
 
 def update_recipe(id, obj):
     p = Path(recipe_dir) / id / "recipe.json"
-    with open(p, "w") as f:
-        json.dump(obj, f, indent=2)
+    save_json(obj, p)
     res = {
         "status": "success",
         "data_type": "detail",
