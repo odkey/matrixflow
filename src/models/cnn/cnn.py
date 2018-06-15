@@ -4,6 +4,7 @@ import json
 from tqdm import tqdm
 import inspect
 import os
+from collections import defaultdict
 
 from ..recipe import Model
 from ..recipemanager import Manager as RecipeManager
@@ -22,19 +23,43 @@ class CNN(Model):
         print(json.dumps(self.recipe, indent=2))
 
 
+    def _change_edge_sources(self, id, output):
+        for target, source_list in self.edge_dict.items():
+            if id in source_list:
+                self.edge_dict[target].remove(id)
+                self.edge_dict[target].append(output)
+
+
     def build_nn(self):
         layers = self.recipe["layers"]
+        edges = self.recipe["edges"]
+        self.edge_dict = defaultdict(list)
+        for e in edges:
+            source = e["sourceId"]
+            target = e["targetId"]
+            self.edge_dict[target].append(source)
+        print('"target":["source"]')
+        print(self.edge_dict)
         output = None
         for layer in layers:
             name = layer["name"]
+            id = layer["id"]
             print(name)
-            if name == "input":
+
+            if name == "inputData":
+                name = "input_data"
                 x_shape = [None, layer["width"], layer["height"]]
+                self.x = self.methods[name](x_shape)
+                self._change_edge_sources(id, self.x)
+            elif name == "inputLabels":
+                name = "input_labels"
                 y_shape = [None, layer["nClass"]]
-                self.x, self.y = self.methods[name](x_shape, y_shape)
-            elif name == "hidden":
-                h = self.x
-                for l in layer["layers"]:
+                self.y = self.methods[name](y_shape)
+                self._change_edge_sources(id, self.y)
+            else:
+                sources = self.edge_dict[id]
+                l = layer
+                for h in sources:
                     name = l["name"]
                     if name == "reshape":
                         arg = [h, l["shape"]]
@@ -46,14 +71,10 @@ class CNN(Model):
                         arg = [h]
                     elif name == "fc":
                         arg = [h, l["outSize"], l["act"]]
-
+                    elif name == "loss" or name == "acc":
+                        arg = [h]
                     h = self.methods[name](*arg)
-                output = h
-            elif name == "loss" or name == "acc":
-                self.methods[name](output)
-
-
-
+                    self._change_edge_sources(id, h)
 
 
         #self.x, self.y = self.methods["input"](x_shape, y_shape)

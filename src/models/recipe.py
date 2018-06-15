@@ -13,11 +13,15 @@ class Model:
         b = tf.constant(0.1, shape=shape)
         return tf.Variable(b)
 
-    def input(self, x_shape, y_shape, x_type=tf.float32, y_type=tf.float32):
-        with tf.name_scope("input"):
+    def input_data(self, x_shape, x_type=tf.float32):
+        with tf.name_scope("input-data"):
             x = tf.placeholder(x_type, shape=x_shape)
+        return x
+
+    def input_labels(self, y_shape, y_type=tf.float32):
+        with tf.name_scope("input-labels"):
             y = tf.placeholder(y_type, shape=y_shape)
-        return x, y
+        return y
 
 
     def reshape(self, input, shape):
