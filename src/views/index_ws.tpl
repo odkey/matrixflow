@@ -28,7 +28,7 @@
 
   </head>
   <body>
-    <div id="app">
+    <div id="app" style="visibility : hidden">
     <b-navbar toggleable="md" type="dark" class="nav-main">
       <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
       <b-navbar-brand>MatrixFlow</b-navbar-brand>
@@ -681,6 +681,11 @@
           { value: "en", text: "English" },
           { value: "ja", text: "日本語" }
         ]
+
+        var app = document.getElementById('app');
+        console.log(app.style);
+        console.log(app.style.visibility);
+        app.style.visibility = "visible";
 
 
         this.ws.onopen = () => {
