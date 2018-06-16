@@ -13,6 +13,7 @@
       "close": "閉じる",
       "delete": "削除",
       "upload": "アップロード",
+      "cancel": "キャンセル",
       "showDetails": "詳細表示"
     },
     "table": {
@@ -68,6 +69,7 @@
       "close": "Close",
       "delete": "Delete",
       "upload": "Upload",
+      "cancel": "Cancel",
       "showDetails": "Show Detail"
     },
     "table": {

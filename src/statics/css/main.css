@@ -31,6 +31,10 @@ table {
   margin-top: 10px;
 }
 
+.button-right{
+  text-align: right;
+}
+
 .cy {
     width: 100%;
     height: 1000px;
