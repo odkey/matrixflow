@@ -154,7 +154,7 @@
         </div>
         <b-table :items="recipes" :fields="recipeFields" hover>
           <template slot="showDetails" slot-scope="row">
-            <b-button size="sm" @click.stop="showRecipe(row)" class="mr-2">
+            <b-button size="sm" @click.stop="toggleRecipe(row)" class="mr-2">
               ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
             </b-button>
           </template>
@@ -194,8 +194,8 @@
                   <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
                 </b-col>
               </b-row>
-              <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
-              <b-button size="sm" @click="deleteRecipe(row)">${$t("button.delete")}</b-button>
+              <b-button size="sm" @click.stop="closeRecipe(row)">${$t("button.close")}</b-button>
+              <b-button size="sm" @click.stop="deleteRecipe(row)">${$t("button.delete")}</b-button>
             </b-card>
           </template>
         </b-table>
@@ -380,17 +380,54 @@
         result: ""
       },
       methods: {
+        toggleRecipe: function(row){
+          if(!row.detailsShowing){
+            this.showRecipe(row);
+          }else{
+            this.closeRecipe(row);
+          }
+        },
         showRecipe: function(row){
           row.toggleDetails();
           this.$nextTick(()=>{
             this.buildGraph(row.item);
           });
         },
+        closeRecipe: function(row){
+          const cy = row.item.graph;
+          const length = cy.elements("node").length;
+          const recipe = row.item.body;
+          const layers = row.item.body.layers;
+
+          const zoom = cy.zoom();
+          const pan = cy.pan();
+          console.log(zoom);
+          console.log(pan);
+          recipe.graph.zoom = zoom;
+          recipe.graph.pan = pan;
+
+          for(let id=0;id<length;id++){
+            const p = cy.$("#"+id).position();
+            for(let i=0;i<layers.length;i++){
+              if(layers[i].id == id){
+                layers[i].position = p;
+                break;
+              }
+            }
+          }
+          row.toggleDetails();
+        },
         buildGraph: function(recipe){
           const body = recipe.body;
           const layers = body.layers;
           const edges = body.edges;
+          const graph = body.graph;
           const elem = document.getElementsByClassName("cy");
+          const layoutOptions = {
+            directed: true,
+            padding: 10,
+            name: 'breadthfirst'
+          };
           const cy = cytoscape({
             container: elem,
             elements: [],
@@ -420,14 +457,8 @@
                 }
               }
             ],
-            layout: {
-              directed: true,
-              padding: 10,
-              name: 'breadthfirst'
-            }
+            layout: layoutOptions
           });
-          const recipeId = "32423432"
-          const idList = []
           layers.forEach(v=>{
             const id = v["id"];
               const node =  {
@@ -435,9 +466,9 @@
                   id: id,
                   name: v["name"],
                   weight: 150,
-                  faveColor: this.themeColor,
-                  faveShape: 'circle'
-                }
+                  faveColor: this.themeColor
+                },
+                position: v.position
               };
               cy.add(node);
           });
@@ -451,14 +482,19 @@
             };
             cy.add(edge);
           });
-
-          var options =  {
-            directed: true,
-            padding: 10,
-            name: 'breadthfirst'
+          const layout = cy.elements().layout(layoutOptions);
+          if(!layers[0].position){
+           layout.run();
+          }else{
+            console.log("set postions from data.");
+            if(graph){
+              console.log("zoom:"+graph.zoom);
+              console.log("pan:"+graph.pan);
+              cy.pan(graph.pan);
+              cy.zoom(graph.zoom);
+            }
           }
-          var layout = cy.elements().layout(options);
-          layout.run();
+          recipe.graph = cy;
         },
         parseFile: function(file, chunkSize){
           var fileSize = file.size;
