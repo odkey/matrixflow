@@ -1,6 +1,8 @@
 {
   "ja": {
-    "message": {},
+    "message": {
+      "deleteRecipe": "このレシピを削除してもよろしいですか？"
+    },
     "element": {
       "recipe": "レシピ",
       "data": "データ",
@@ -53,7 +55,9 @@
   },
 
   "en": {
-    "message": {},
+    "message": {
+      "deleteRecipe": "Are you sure you want to delete this?"
+    },
     "element": {
       "recipe": "Recipe",
       "data": "Data",

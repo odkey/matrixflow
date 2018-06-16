@@ -195,8 +195,21 @@
                 </b-col>
               </b-row>
               <b-button size="sm" @click.stop="closeRecipe(row)">${$t("button.close")}</b-button>
-              <b-button size="sm" @click.stop="deleteRecipe(row)">${$t("button.delete")}</b-button>
+              <b-btn size="sm" v-b-modal="'deleteRecipe'+row.index">${$t("button.delete")}</b-btn>
             </b-card>
+            <div>
+              <b-modal
+                v-bind:id="'deleteRecipe'+row.index"
+                ref="modal"
+                @ok="deleteRecipe(row)">
+                <div slot="modal-title">
+                  ${$t("message.deleteRecipe")}
+                </div>
+                <div>
+                  ${row.item.body.info.name} (${row.item.id})
+                </div>
+              </b-modal>
+            </div>
           </template>
         </b-table>
       </div>
@@ -519,6 +532,8 @@
           this.sendMessage(req)
         },
         changeMenu: function(menu){
+          this.setRecipeFields();
+          this.setDataFields();
           this.selectedMenu = menu;
         },
         changeLang: function(lang){
