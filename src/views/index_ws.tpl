@@ -184,7 +184,7 @@
                 <b-col sm="3" class="text-sm-right"></b-col>
                 <b-col>
                   <div class="recipe-graph">
-                    <div class="cy"></div>
+                    <div class="cy" v-bind:id="'cy'+row.index"></div>
                   </div>
                 </b-col>
               </b-row>
@@ -403,7 +403,7 @@
         showRecipe: function(row){
           row.toggleDetails();
           this.$nextTick(()=>{
-            this.buildGraph(row.item);
+            this.buildGraph(row.item, row.index);
           });
         },
         closeRecipe: function(row){
@@ -430,12 +430,12 @@
           }
           row.toggleDetails();
         },
-        buildGraph: function(recipe){
+        buildGraph: function(recipe, index){
           const body = recipe.body;
           const layers = body.layers;
           const edges = body.edges;
           const graph = body.graph;
-          const elem = document.getElementsByClassName("cy");
+          const elem = document.getElementById("cy"+index);
           const layoutOptions = {
             directed: true,
             padding: 10,
