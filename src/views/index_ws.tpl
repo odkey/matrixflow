@@ -652,7 +652,7 @@
         recipeOptions: function(){
           const recipeOptions = []
           this.recipes.forEach((v) => {
-            const text = v["name"]? v["name"]+" ("+v["id"]+")": v["id"]
+            const text = (v.body.info && v.body.info.name)? v.body.info.name+" ("+v["id"]+")": v["id"]
             const option = {"value": v, "text": text};
             if(!v["body"]){
               option["disabled"]= true
