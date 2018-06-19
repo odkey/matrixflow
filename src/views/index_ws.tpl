@@ -342,6 +342,8 @@
         languageOptions: [],
         selectedMenu: "data",
         selectedLanguage: language,
+        dataSortBy: "create_time",
+        dataSortDesc: true,
         chartOptions: {responsive: false, maintainAspectRatio: false},
         accuracyTrainChartData: {
           labels: [],
@@ -550,7 +552,6 @@
         },
         selectedFile: function(e){
           e.preventDefault();
-          console.log("uploaded");
           let files = e.target.files;
           this.uploadFile = files[0];
         },
@@ -729,6 +730,9 @@
               this.lossTestChartData = addChartData(this.lossTestChartData, "test", res["iter"], res["loss"]);
             }else if(res["action"] == "uploaded"){
               this.progress = 0;
+              this.newData.name = "";
+              this.newData.description = "";
+              this.uploadFile = null;
               const data_req = {"action": "get_data_list"};
               this.sendMessage(data_req);
             } else {
