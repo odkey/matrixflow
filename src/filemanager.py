@@ -163,6 +163,16 @@ def get_data_list():
     }
     return res
 
+def delete_data(id):
+    p = Path(data_dir) / id
+    if os.path.isdir(p):
+        shutil.rmtree(p)
+    res = {
+        "status": "success",
+        "data_type": "delete"
+    }
+    return res
+
 
 
 def save_recipe(obj):

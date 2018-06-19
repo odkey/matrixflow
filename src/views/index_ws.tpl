@@ -136,6 +136,20 @@
               <b-col>${ row.item.update_time }</b-col>
             </b-row>
             <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
+            <div class="button-right">
+              <b-btn size="sm" v-b-modal="'deleteData'+row.index">${$t("button.delete")}</b-btn>
+            </div>
+            <b-modal v-bind:id="'deleteData'+row.index" ref="modal" @ok="deleteData(row)">
+              <div slot="modal-title">
+                ${$t("message.deleteRecipe")}
+              </div>
+              <div slot="modal-cancel">
+                ${$t("button.cancel")}
+              </div>
+              <div>
+                ${row.item.name} (${row.item.id})
+              </div>
+            </b-modal>
           </b-card>
         </template>
       </b-table>
@@ -534,6 +548,15 @@
           }
           this.sendMessage(req)
         },
+        deleteData: function(row){
+          const dataId = row.item.id;
+          console.log(dataId);
+          const req = {
+            action: "deleteData",
+            dataId: dataId
+          }
+          this.sendMessage(req)
+        },
         changeMenu: function(menu){
           this.setRecipeFields();
           this.setDataFields();
@@ -720,6 +743,15 @@
                 }
               }
               this.$delete(this.recipes, deleteId);
+            }else if (res["action"] == "deleteData") {
+              console.log(res);
+              for(let i=0; i< this.learningData.length; i++){
+                if(this.learningData[i].id == res.dataId){
+                  var deleteId = i;
+                  break;
+                }
+              }
+              this.$delete(this.learningData, deleteId);
             }else if(res["action"] == "learning"){
               this.learningNumIter = res["nIter"]
               this.learningProgress = res["iter"]

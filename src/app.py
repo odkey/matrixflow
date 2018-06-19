@@ -109,10 +109,22 @@ def handler(wsock, message):
 
         elif obj["action"] == "deleteRecipe":
             recipe_id = obj["recipeId"]
-            res = fm.delete_recipe(recipe_id)
+            r = fm.delete_recipe(recipe_id)
+            log_debug(r)
+            res = {}
             res["action"] = obj["action"]
             res["recipeId"] = recipe_id
             wsock.send(json.dumps(res))
+
+        elif obj["action"] == "deleteData":
+            data_id = obj["dataId"]
+            r = fm.delete_data(data_id)
+            log_debug(r)
+            res = {}
+            res["action"] = obj["action"]
+            res["dataId"] = data_id
+            wsock.send(json.dumps(res))
+
 
     except (UnicodeDecodeError, json.decoder.JSONDecodeError):
         d["size"] += len(message)
