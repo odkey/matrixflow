@@ -5,10 +5,16 @@ from tqdm import tqdm
 import inspect
 import os
 from collections import defaultdict
+import datetime
 
 from ..recipe import Model
 from ..recipemanager import Manager as RecipeManager
 from ..imagemanager import Manager as ImageManager
+
+out_dir = "logs"
+save_checkpoint = True
+num_checkpoints = 5
+os.makedirs(out_dir, exist_ok=True)
 
 
 
@@ -22,6 +28,8 @@ class CNN(Model):
         self.methods = dict(inspect.getmembers(self, inspect.ismethod))
         self.edge_dict = defaultdict(list)
         print(json.dumps(self.recipe, indent=2))
+        self.id = None
+        self.out_dir = None
 
 
     def _change_edge_sources(self, id, output):
@@ -106,12 +114,42 @@ class CNN(Model):
             print("start session")
             with tf.Session() as sess:
                 self.build_nn()
-                #summary_writer = tf.summary.FileWriter(log_dir, sess.graph)
+                self.id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+                self.out_dir = os.path.join(out_dir, self.id)
 
                 global_step = tf.Variable(0, name="global_step", trainable=False)
                 optimizer = tf.train.AdamOptimizer(config["learning_rate"])
                 grads_and_vars = optimizer.compute_gradients(self.loss)
                 train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
+
+
+                grad_summaries = []
+                for g, v in grads_and_vars:
+                    if g is not None:
+                        grad_hist_summary = tf.summary.histogram("{}/grad/hist".format(v.name), g)
+                        sparsity_summary = tf.summary.scalar("{}/grad/sparsity".format(v.name), tf.nn.zero_fraction(g))
+                        grad_summaries.append(grad_hist_summary)
+                        grad_summaries.append(sparsity_summary)
+                grad_summaries_merged = tf.summary.merge(grad_summaries)
+
+                loss_summary = tf.summary.scalar("loss", self.loss)
+                acc_summary = tf.summary.scalar("accuracy", self.accuracy)
+
+                train_summary_op = tf.summary.merge([loss_summary, acc_summary, grad_summaries_merged])
+
+                train_summary_dir = os.path.join(self.out_dir, "summaries", "train")
+                train_summary_writer = tf.summary.FileWriter(train_summary_dir, sess.graph)
+
+                test_summary_op = tf.summary.merge([loss_summary, acc_summary])
+                test_summary_dir = os.path.join(self.out_dir, "summaries", "test")
+                test_summary_writer = tf.summary.FileWriter(test_summary_dir, sess.graph)
+
+                if save_checkpoint:
+                    checkpoint_dir = os.path.abspath(os.path.join(self.out_dir, "checkpoints"))
+                    checkpoint_prefix = os.path.join(checkpoint_dir, "model")
+                    os.makedirs(checkpoint_dir, exist_ok=True)
+                    saver = tf.train.Saver(tf.global_variables(), max_to_keep=num_checkpoints)
+
 
                 sess.run(tf.global_variables_initializer())
                 epoch = config["epoch"]
@@ -120,19 +158,23 @@ class CNN(Model):
                 for i in tqdm(range(n_iter)):
 
                     if ws:
-                        res = {"action": "learning", "iter": i, "nIter": n_iter}
+                        res = {"action": "learning", "iter": i, "nIter": n_iter, "id": self.id}
                         ws.send(json.dumps(res))
 
                     labels, images = self.ima.next_batch("train", batch_size)
                     sess.run(train_op, feed_dict={self.x: images, self.y: labels})
+
                     if i % config["saver"]["evaluate_every"] == 0:
-                        train_loss, train_accuracy = sess.run(
-                                                        [self.loss, self.accuracy],
-                                                        feed_dict={self.x: images, self.y: labels})
+
+                        step, summaries, train_loss, train_accuracy =\
+                            sess.run([global_step, train_summary_op, self.loss, self.accuracy], feed_dict={self.x: images, self.y: labels})
+
                         print('step %d, training loss %g, training accuracy %g' % (i, train_loss, train_accuracy))
+                        train_summary_writer.add_summary(summaries, step)
                         if ws:
                             res = {
                                 "action": "evaluate_train",
+                                "id": self.id,
                                 "iter": i,
                                 "nIter": n_iter,
                                 "loss": str(train_loss),
@@ -143,11 +185,17 @@ class CNN(Model):
                     if i % 50 == 0 and i != 0:
                         labels, images = self.ima.next_batch("test", self.ima.n_test)
                         feed = {self.x: images, self.y: labels}
-                        test_loss, test_accuracy = sess.run([self.loss, self.accuracy], feed_dict=feed)
+                        step, summaries, test_loss, test_accuracy =\
+                            sess.run([global_step, test_summary_op, self.loss, self.accuracy], feed_dict=feed)
                         print('step %d, test loss %g, test accuracy %g' % (i, test_loss, test_accuracy))
+                        test_summary_writer.add_summary(summaries, step)
+                        if save_checkpoint:
+                            path = saver.save(sess, checkpoint_prefix, global_step=step)
+                            print("Saved model checkpoint to {}\n".format(path))
                         if ws:
                             res = {
                                 "action": "evaluate_test",
+                                "id": self.id,
                                 "iter": i,
                                 "nIter": n_iter,
                                 "loss": str(test_loss),
