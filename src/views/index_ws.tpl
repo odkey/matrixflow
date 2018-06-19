@@ -92,10 +92,10 @@
           <b-row class="mb-2">
             <b-button v-on:click="uploadData" v-bind:disabled="!uploadFile || !newData.name">${$t("button.upload")}</b-button>
           </b-row>
+          <p v-if="progress > 0">
+            <b-progress class="progress" height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
+          </p>
         </b-card>
-        <p v-if="uploadFile">
-          <b-progress class="progress" height="30px" :value="progress" :max="uploadFile.size" show-progress animated></b-progress>
-        </p>
        </b-collapse>
       </div>
       <b-table :items="learningData" :fields="dataFields" hover>
@@ -727,6 +727,10 @@
             }else if(res["action"] == "evaluate_test"){
               this.accuracyTestChartData = addChartData(this.accuracyTestChartData, "test", res["iter"], res["accuracy"]);
               this.lossTestChartData = addChartData(this.lossTestChartData, "test", res["iter"], res["loss"]);
+            }else if(res["action"] == "uploaded"){
+              this.progress = 0;
+              const data_req = {"action": "get_data_list"};
+              this.sendMessage(data_req);
             } else {
               var loadedSize = res["loadedSize"]
               if(loadedSize){
