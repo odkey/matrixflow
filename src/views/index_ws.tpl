@@ -30,7 +30,7 @@
   </head>
   <body>
     <div id="app" style="visibility : hidden">
-    <b-navbar toggleable="md" type="dark" class="nav-main">
+    <b-navbar toggleable="md" type="dark" class="nav-main" fixed="top" :sticky=true>
       <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
       <b-navbar-brand>MatrixFlow</b-navbar-brand>
 
@@ -41,16 +41,7 @@
           <b-nav-item @click="changeMenu('learning')">${$t("tab.menu.learning")}</b-nav-item>
           <b-nav-item @click="changeMenu('model')">${$t("tab.menu.model")}</b-nav-item>
         </b-navbar-nav>
-
         <b-navbar-nav class="ml-auto">
-
-          <!--   Can't change the label of tabs. languages are changed in 'settings'.
-          <b-nav-item-dropdown text="Lang" right>
-            <b-dropdown-item @click="changeLang('en')">English</b-dropdown-item>
-            <b-dropdown-item @click="changeLang('ja')">日本語</b-dropdown-item>
-          </b-nav-item-dropdown>
-        -->
-
           <b-nav-item-dropdown right>
             <template slot="button-content">
               <em>User</em>
@@ -58,7 +49,6 @@
             <b-dropdown-item @click="changeMenu('setting')">${$t("tab.menu.setting")}</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
-
       </b-collapse>
     </b-navbar>
     <div v-show="selectedMenu == 'data'">
