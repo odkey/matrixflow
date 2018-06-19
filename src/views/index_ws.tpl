@@ -16,6 +16,7 @@
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 
     <script src="statics/js/vue-i18n.js"></script>
+
     <script src="statics/js/cytoscape.js"></script>
 
     <link type="text/css" rel="stylesheet" href="statics/css/main.css"/>
@@ -98,7 +99,7 @@
         </b-card>
        </b-collapse>
       </div>
-      <b-table :items="learningData" :fields="dataFields" hover>
+      <b-table :items="learningData" :fields="dataFields" :sort-by.sync="dataSortBy" :sort-desc.sync="dataSortDesc" hover>
         <template slot="showDetails" slot-scope="row">
           <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
             ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
