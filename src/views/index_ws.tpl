@@ -148,12 +148,45 @@
       <div v-show="selectedMenu == 'recipe'">
         <h2>${$t("tab.menu.recipe")}</h2>
         <div>
-          <b-btn v-b-toggle.data-add variant="secondary">${showAddRecipe? $t("button.close"):$t("button.add")}</b-btn>
-          <b-collapse id="data-add" class="mt-2" v-model="showAddRecipe">
+          <b-btn v-b-toggle.recipe-add variant="secondary">${showAddRecipe? $t("button.close"):$t("button.add")}</b-btn>
+          <b-collapse id="recipe-add" class="mt-2" v-model="showAddRecipe">
             <b-card>
-              <p>
-                add
-              </p>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
+                <b-col>
+                  <b-form-input v-model="newRecipe.info.name" type="text" placeholder=""></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
+                <b-col>
+                  <b-form-textarea v-model="newRecipe.info.description" placeholder="" :rows="3" :max-rows="6">
+                </b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
+                <b-col>
+                  <draggable class="recipe-layers" @end="onEnd" :options="{group:{ name:'ITEMS',  pull:'clone', put:false }}">
+                    <b-button v-for="element in recipeLayers" :key="element.name" :class="element.name">
+                      ${element.name}
+                    </b-button>
+                  </draggable>
+                </b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"></b-col>
+                <b-col>
+                  <draggable class="drop-graph" :options="{group:'ITEMS'}" style="display: none;">
+                    <div>dummy</div>
+                  </draggable>
+                  <div class="recipe-graph">
+                    <div class="cy" id="cy-new"></div>
+                  </div>
+                </b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-button v-on:click="addRecipe" v-bind:disabled="!newRecipe.info.name">${$t("button.save")}</b-button>
+              </b-row>
             </b-card>
           </b-collapse>
         </div>
@@ -339,6 +372,61 @@
           name: "",
           description: ""
         },
+        newRecipe: {
+          "info": {
+            "name": "",
+            "description": ""
+          },
+          "graph": {},
+          "layers": [
+            {
+              id: 0,
+              name: "inputData",
+              position: {x: 150, y: 100}
+            },
+            {
+              id: 1,
+              name: "loss",
+              position: {x: 250, y: 200}
+            },
+            {
+              id: 2,
+              name: "acc",
+              position: {x: 350, y: 200}
+            }
+          ],
+          "edges": [],
+          "train": {}
+        },
+        recipeLayers: [
+          {
+            "name": "inputData",
+            "type": "input",
+            "width": 28,
+            "height": 28
+          },
+          {
+            "name": "inputLabels",
+            "type": "input",
+            "nClass": 10
+          },
+          {
+            "name": "conv2d",
+            "type": "layer",
+          },
+          {
+            "name": "max_pool",
+            "type": "layer",
+          },
+          {
+            "name": "fc",
+            "type": "layer",
+          },
+          {
+            "name": "flatten",
+            "type": "layer",
+          }
+        ],
         learningProgress: 0,
         learningNumIter: 0,
         uploadFile: null,
@@ -400,6 +488,114 @@
         result: ""
       },
       methods: {
+        clickNode: function(graph, pureNode){
+          const node = pureNode.data();
+          const id = node.id;
+          const p = pureNode.position()
+          const nodeId =  new Date().getTime();
+          const edgeId = "edge-"+id+"-"+nodeId;
+
+          const edge = {
+            data: {
+              id: edgeId,
+              source: id,
+              target: nodeId
+            }
+          };
+
+          const target_node =  {
+            data: {
+              id: nodeId,
+              name: "*",
+              weight: 10,
+              height: "1px",
+              isConnectPoint: true,
+
+              faveShape: "ellipse",
+              faveColor: this.themeColor
+            },
+            position: {x: p.x + 20, y: p.y + 50}
+          };
+
+          graph.add(target_node)
+
+          graph.nodes().on("free", (e)=>{
+            const connectPoint = e.target;
+            if(connectPoint.data().isConnectPoint){
+              const connectPointId = connectPoint.data().id
+              const targetPosition = connectPoint.position();
+              const nodes = graph.elements("node");
+              nodes.forEach(v=>{
+                const id = v.data().id;
+                const position = v.position();
+                if(position && id != connectPointId){
+                  const width = v.width();
+                  const height = v.height();
+                  if((position.x - width/2) <= targetPosition.x && targetPosition.x <= (position.x + width/2)
+                    && (position.y - height/2) <= targetPosition.y && targetPosition.y <= (position.y + height/2)){
+
+                    const sourceNode = connectPoint.neighborhood("node")[0];
+                    if(sourceNode){
+                      const sourceId = sourceNode.data().id;
+                      graph.remove("#"+connectPointId);
+                      const edgeId = new Date().getTime();
+                      const edge = {
+                        data: {
+                          id: edgeId,
+                          source: sourceId,
+                          target: id
+                        }
+                      };
+                      graph.add(edge);
+                    }
+
+                  }
+                }
+              });
+            }
+          });
+
+          graph.add(edge);
+
+        },
+        onEnd: function(e){
+          console.log(e);
+          console.log(e.target.offset);
+          const name = e.clone.innerText.trim();
+          //const newNodeId = e.timeStamp;
+          const graph = this.newRecipe.graph;
+          const newNodeId = graph.nodes().length;
+          const node =  {
+            data: {
+              id: newNodeId,
+              name: name,
+              weight: 150,
+              faveShape: "rectangle",
+              faveColor: this.themeColor
+            },
+            position: {x: 100, y: 100}
+          };
+          graph.add(node);
+          /*
+          const layoutOptions = {
+            directed: true,
+            padding: 10,
+            name: 'breadthfirst'
+          };
+          */
+          console.log(graph.$("#"+newNodeId));
+          graph.$("#"+newNodeId).on("click", (e)=>{
+            const node = e.target;
+            this.clickNode(graph, node);
+          });
+           /*
+          const layout = graph.elements().layout(layoutOptions);
+          layout.run();
+          */
+        },
+        addRecipe: function(){
+          console.log(this.newRecipe);
+        },
         toggleRecipe: function(row){
           if(!row.detailsShowing){
             this.showRecipe(row);
@@ -410,35 +606,32 @@
         showRecipe: function(row){
           row.toggleDetails();
           this.$nextTick(()=>{
-            this.buildGraph(row.item, row.index);
+            this.buildGraph(row.item.body, row.index);
           });
         },
+
         closeRecipe: function(row){
-          const cy = row.item.graph;
-          const length = cy.elements("node").length;
+          const cy = row.item.body.graph;
+          const nodes = cy.elements("node");
           const recipe = row.item.body;
-          const layers = row.item.body.layers;
-
-          const zoom = cy.zoom();
-          const pan = cy.pan();
-          console.log(zoom);
-          console.log(pan);
-          recipe.graph.zoom = zoom;
-          recipe.graph.pan = pan;
-
-          for(let id=0;id<length;id++){
-            const p = cy.$("#"+id).position();
-            for(let i=0;i<layers.length;i++){
-              if(layers[i].id == id){
-                layers[i].position = p;
-                break;
-              }
+          const layers = [];
+          nodes.forEach(v=>{
+            if(v.position){
+              console.log(v.data().id);
+              const layer = Object.assign({}, v.data());
+              layer.position = v.position();
+              layer.width = v.width();
+              layer.height = v.height();
+              console.log(layer);
+              layers.push(layer);
             }
-          }
+          });
+          row.item.body.layers = layers;
+          recipe.graph.zoom = cy.zoom();
+          recipe.graph.pan = cy.pan();
           row.toggleDetails();
         },
-        buildGraph: function(recipe, index){
-          const body = recipe.body;
+        buildGraph: function(body, index){
           const layers = body.layers;
           const edges = body.edges;
           const graph = body.graph;
@@ -465,8 +658,9 @@
               {
                 selector: 'node',
                 style: {
-                  shape: "rectangle",
-                  width: 'mapData(weight, 40, 80, 20, 60)',
+                  shape: "data(faveShape)",
+                  //width: 'mapData(weight, 40, 80, 20, 60)',
+                  width: 'label',
                   label: 'data(name)',
                   color: "#fff",
                   'text-outline-width': 2,
@@ -486,6 +680,7 @@
                   id: id,
                   name: v["name"],
                   weight: 150,
+                  faveShape: "rectangle",
                   faveColor: this.themeColor
                 },
                 position: v.position
@@ -503,7 +698,7 @@
             cy.add(edge);
           });
           const layout = cy.elements().layout(layoutOptions);
-          if(!layers[0].position){
+          if(layers.length ==0 || !layers[0].position){
            layout.run();
           }else{
             console.log("set postions from data.");
@@ -514,7 +709,12 @@
               cy.zoom(graph.zoom);
             }
           }
-          recipe.graph = cy;
+          cy.nodes().on("click", (e)=>{
+            const node = e.target;
+            this.clickNode(cy, node);
+          });
+          body.graph = cy;
+
         },
         parseFile: function(file, chunkSize){
           var fileSize = file.size;
@@ -702,6 +902,8 @@
         console.log(app.style.visibility);
         app.style.visibility = "visible";
 
+
+        this.buildGraph(this.newRecipe, "-new");
 
         this.ws.onopen = () => {
           console.log("ws open.");

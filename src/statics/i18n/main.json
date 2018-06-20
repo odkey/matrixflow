@@ -10,6 +10,7 @@
     },
     "button":{
       "add": "新規追加",
+      "save": "保存",
       "close": "閉じる",
       "delete": "削除",
       "upload": "アップロード",
@@ -66,6 +67,7 @@
     },
     "button":{
       "add": "Add",
+      "save": "Save",
       "close": "Close",
       "delete": "Delete",
       "upload": "Upload",
