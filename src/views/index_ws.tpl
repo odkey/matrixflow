@@ -164,7 +164,7 @@
                 </b-col>
               </b-row>
               <b-row class="mb-2">
-                <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
+                <b-col sm="3" class="text-sm-right"></b-col>
                 <b-col>
                   <draggable class="recipe-layers" @end="onEnd" :options="{group:{ name:'ITEMS',  pull:'clone', put:false }}">
                     <b-button v-for="element in recipeLayers" :key="element.name" :class="element.name">
@@ -174,7 +174,24 @@
                 </b-col>
               </b-row>
               <b-row class="mb-2">
-                <b-col sm="3" class="text-sm-right"></b-col>
+                <b-col sm="3" class="text-sm-center">
+                  <div class="layer-info">
+                    <div>
+                      name: <b>${tapedLayer.data().name}</b>
+                    </div>
+                    <div>
+                      id: <b>${tapedLayer.data().id}</b>
+                    </div>
+                    <hr>
+                    <div v-for="node in tapedLayer.neighborhood('node')">
+                      <div v-if="node.data">${node.data().name} (${node.data().id})</div>
+                    </div>
+                    <hr>
+                    <div>
+                      <b-button @click.stop="clickNode(newRecipe.graph, tapedLayer)">add edge</b-button>
+                    </div>
+                  </div>
+                </b-col>
                 <b-col>
                   <draggable class="drop-graph" :options="{group:'ITEMS'}" style="display: none;">
                     <div>dummy</div>
@@ -434,6 +451,16 @@
         showAddRecipe: false,
         languageOptions: [],
         selectedMenu: "data",
+        tapedLayer: {
+          data: () => {
+            return {
+              name: ""
+            };
+          },
+          neighborhood: (selecter) => {
+            return [];
+          },
+        },
         selectedLanguage: language,
         dataSortBy: "create_time",
         dataSortDesc: true,
@@ -584,9 +611,9 @@
           };
           */
           console.log(graph.$("#"+newNodeId));
-          graph.$("#"+newNodeId).on("click", (e)=>{
+          graph.$("#"+newNodeId).on("tap", (e)=>{
             const node = e.target;
-            this.clickNode(graph, node);
+            this.tapedLayer = node;
           });
            /*
           const layout = graph.elements().layout(layoutOptions);
@@ -702,16 +729,17 @@
            layout.run();
           }else{
             console.log("set postions from data.");
-            if(graph){
+            if(graph && graph.zoom && graph.pan){
               console.log("zoom:"+graph.zoom);
-              console.log("pan:"+graph.pan);
+              console.log("pan x:"+graph.pan.x);
+              console.log("pan y:"+graph.pan.y);
               cy.pan(graph.pan);
               cy.zoom(graph.zoom);
             }
           }
-          cy.nodes().on("click", (e)=>{
+          cy.nodes().on("tap", (e)=>{
             const node = e.target;
-            this.clickNode(cy, node);
+            this.tapedLayer = node;
           });
           body.graph = cy;
 
@@ -860,6 +888,13 @@
         selectedLanguage: function(newLocale, oldLocale){
           this.$i18n.locale = newLocale;
           setLocalSettings("language", newLocale)
+        },
+        showAddRecipe: function(newShow, oldShow){
+          if(newShow){
+            this.$nextTick(()=>{
+              this.buildGraph(this.newRecipe, "-new");
+            });
+          }
         }
       },
 
@@ -903,7 +938,6 @@
         app.style.visibility = "visible";
 
 
-        this.buildGraph(this.newRecipe, "-new");
 
         this.ws.onopen = () => {
           console.log("ws open.");
