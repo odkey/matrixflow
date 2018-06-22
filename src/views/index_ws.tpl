@@ -182,11 +182,12 @@
                     <div>
                       id: <b>${tapedLayer.data().id}</b>
                     </div>
-                    <hr>
-                    <div v-for="node in tapedLayer.neighborhood('node')">
-                      <div v-if="node.data">${node.data().name} (${node.data().id})</div>
-                    </div>
-                    <hr>
+                    <b-list-group v-for="node in tapedLayer.neighborhood('node')">
+                      <b-list-group-item v-if="node.data">
+                        ${node.data().name} (${node.data().id})
+                        <span class="edge-delete" @click="deleteEdge(node)">X</span>
+                      </b-list-group-item>
+                    </b-list-group>
                     <div>
                       <b-button @click.stop="clickNode(newRecipe.graph, tapedLayer)">add edge</b-button>
                     </div>
@@ -515,6 +516,19 @@
         result: ""
       },
       methods: {
+        deleteEdge: function(row){
+          const edges = row.neighborhood("edge");
+          const deleteTargetId = row.data().id;
+          console.log(deleteTargetId);
+          for(let i=0; i<edges.length; i++){
+            if(edges[i].data().target == deleteTargetId){
+              const id = edges[i].data().id;
+              this.newRecipe.graph.remove("#"+id);
+              console.log(id);
+              break;
+            }
+          }
+        },
         clickNode: function(graph, pureNode){
           const node = pureNode.data();
           const id = node.id;

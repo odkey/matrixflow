@@ -35,6 +35,10 @@ table {
   text-align: right;
 }
 
+.edge-delete {
+  margin-left: 20px;
+}
+
 .cy {
     width: 100%;
     height: 100%;
