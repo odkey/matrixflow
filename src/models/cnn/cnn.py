@@ -6,6 +6,7 @@ import inspect
 import os
 from collections import defaultdict
 import datetime
+import networkx as nx
 
 from ..recipe import Model
 from ..recipemanager import Manager as RecipeManager
@@ -51,20 +52,32 @@ class CNN(Model):
     def build_nn(self):
         self._generate_edge_dict()
         layers = self.recipe["layers"]
-        for layer in layers:
+        edges = self.recipe["edges"]
+        ed = [(e["sourceId"], e["targetId"]) for e in edges]
+        G = nx.DiGraph()
+        G.add_edges_from(ed)
+        sorted_edges = list(nx.topological_sort(G))
+        print("########")
+        print(sorted_edges)
+        print("########")
+        layers_dict = { layer["id"]: layer for layer in layers}
+
+        for layer_id in sorted_edges:
+            layer = layers_dict[layer_id]
             name = layer["name"]
             id = layer["id"]
             print(name)
 
             if name == "inputData":
                 name = "input_data"
-                x_shape = [None, layer["width"], layer["height"]]
+                x_shape = [None, layer["dataWidth"], layer["dataHeight"]]
                 self.x = self.methods[name](x_shape)
                 self._change_edge_sources(id, self.x)
             elif name == "inputLabels":
                 name = "input_labels"
                 y_shape = [None, layer["nClass"]]
                 self.y = self.methods[name](y_shape)
+                print("#########################")
                 self._change_edge_sources(id, self.y)
             else:
                 sources = self.edge_dict[id]

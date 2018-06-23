@@ -393,13 +393,15 @@
         newRecipe: {
           "info": {
             "name": "",
-            "description": ""
+            "description": "",
+            "graph": {}
           },
-          "graph": {},
           "layers": [
             {
               id: 0,
               name: "inputData",
+              "dataWidth": 28,
+              "dataHeight": 28,
               position: {x: 150, y: 100}
             },
             {
@@ -420,8 +422,8 @@
           {
             "name": "inputData",
             "type": "input",
-            "width": 28,
-            "height": 28
+            "dataWidth": 28,
+            "dataHeight": 28
           },
           {
             "name": "inputLabels",
@@ -431,6 +433,8 @@
           {
             "name": "conv2d",
             "type": "layer",
+            "act": "relu",
+            "outSize": 32
           },
           {
             "name": "max_pool",
@@ -439,10 +443,17 @@
           {
             "name": "fc",
             "type": "layer",
+            "outSize": 10,
+            "act": "ident"
           },
           {
             "name": "flatten",
             "type": "layer",
+          },
+          {
+            "name": "reshape",
+            "type": "layer",
+            "shape": [ -1, 28, 28, 1]
           }
         ],
         learningProgress: 0,
@@ -599,15 +610,19 @@
           graph.add(edge);
 
         },
-        createGraphNode(id, name, position){
-          const node =  {
-            data: {
+        createGraphNode(id, name, position, d){
+          console.log(d);
+          const data = Object.assign({
               id: id,
               name: name,
               weight: 150,
               faveShape: "rectangle",
               faveColor: this.themeColor
             },
+            d
+          );
+          const node =  {
+            data: data,
             classes: "realNode",
             position: position
           };
@@ -620,7 +635,14 @@
           const newNodeId = graph.nodes(".realNode").length;
           console.log(newNodeId);
           const position = {x: 100, y: 100};
-          const node = this.createGraphNode(newNodeId, name, position)
+          let data = null;
+          for(let i=0; i< this.recipeLayers.length; i++){
+            if(this.recipeLayers[i].name == name){
+              data = this.recipeLayers[i];
+              break;
+            }
+          }
+          const node = this.createGraphNode(newNodeId, name, position, data)
           graph.add(node);
 
           graph.$("#"+newNodeId).on("tap", (e)=>{
@@ -629,10 +651,22 @@
           });
         },
         addRecipe: function(){
-          console.log(this.newRecipe);
-          console.log(this.newRecipe.layers);
-          console.log(this.newRecipe.graph);
-          console.log(this.newRecipe.edges);
+          const recipe = this.createRecipe(this.newRecipe);
+          console.log(recipe);
+          recipe.train = {
+            "learning_rate": 0.001,
+            "batch_size": 64,
+            "epoch": 0.05,
+            "saver": {
+              "evaluate_every": 10,
+              "num_checkpoints": 5
+            }
+          };
+          const req = {
+            action: "addRecipe",
+            recipe: recipe
+          }
+          this.sendMessage(req);
         },
         toggleRecipe: function(row){
           if(!row.detailsShowing){
@@ -645,13 +679,20 @@
           row.toggleDetails();
           this.$nextTick(()=>{
             this.buildGraph(row.item.body, row.index);
+            const recipe = row.item.body;
+            console.log(recipe.graph.elements());
+            const r = recipe.graph.elements().breadthFirstSearch({root: "#0" });
+            console.log("#3###########");
+            console.log(r.path.first());
+            r.path.select();
+            console.log("#3###########");
           });
         },
 
-        closeRecipe: function(row){
-          const cy = row.item.body.graph;
-          const nodes = cy.elements("node");
-          const recipe = row.item.body;
+        createRecipe: function(recipe){
+          const nodes = recipe.graph.elements("node");
+          const graphEdges = recipe.graph.elements("edge");
+
           const layers = [];
           nodes.forEach(v=>{
             if(v.position){
@@ -660,19 +701,38 @@
               layer.position = v.position();
               layer.width = v.width();
               layer.height = v.height();
-              console.log(layer);
               layers.push(layer);
             }
           });
-          row.item.body.layers = layers;
-          recipe.graph.zoom = cy.zoom();
-          recipe.graph.pan = cy.pan();
+          recipe.layers = layers;
+
+          const edges = []
+          graphEdges.forEach(v=>{
+            const edge = {
+              sourceId: v.data().source,
+              targetId: v.data().target
+            }
+            edges.push(edge);
+          });
+          recipe.edges = edges;
+
+          recipe.info.graph = {
+            zoom: recipe.graph.zoom(),
+            pan: recipe.graph.pan()
+          };
+          delete recipe.graph;
+          return recipe;
+        },
+
+        closeRecipe: function(row){
+          const recipe = row.item.body;
+          row.item.body = this.createRecipe(recipe);
           row.toggleDetails();
         },
         buildGraph: function(body, index){
           const layers = body.layers;
           const edges = body.edges;
-          const graph = body.graph;
+          const graph = body.info.graph;
           const elem = document.getElementById("cy"+index);
           const layoutOptions = {
             directed: true,
@@ -712,7 +772,7 @@
             layout: layoutOptions
           });
           layers.forEach(v=>{
-            const node = this.createGraphNode(v.id, v.name, v.position);
+            const node = this.createGraphNode(v.id, v.name, v.position, v);
             cy.add(node);
           });
           edges.forEach((e, i)=>{
@@ -961,6 +1021,9 @@
               console.log(this.learningData);
             }else if (res["action"] == "get_recipe_list") {
               this.recipes = res["list"]
+            } else if (res["action"] == "addRecipe"){
+              const recipes_req = {"action": "get_recipe_list"};
+              this.sendMessage(recipes_req);
             }else if (res["action"] == "deleteRecipe") {
               console.log(res);
               for(let i=0; i< this.recipes.length; i++){
