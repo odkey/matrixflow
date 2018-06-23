@@ -599,43 +599,40 @@
           graph.add(edge);
 
         },
-        onEnd: function(e){
-          console.log(e);
-          console.log(e.target.offset);
-          const name = e.clone.innerText.trim();
-          //const newNodeId = e.timeStamp;
-          const graph = this.newRecipe.graph;
-          const newNodeId = graph.nodes().length;
+        createGraphNode(id, name, position){
           const node =  {
             data: {
-              id: newNodeId,
+              id: id,
               name: name,
               weight: 150,
               faveShape: "rectangle",
               faveColor: this.themeColor
             },
-            position: {x: 100, y: 100}
+            classes: "realNode",
+            position: position
           };
+          return node;
+        },
+        onEnd: function(e){
+          console.log(e);
+          const graph = this.newRecipe.graph;
+          const name = e.clone.innerText.trim();
+          const newNodeId = graph.nodes(".realNode").length;
+          console.log(newNodeId);
+          const position = {x: 100, y: 100};
+          const node = this.createGraphNode(newNodeId, name, position)
           graph.add(node);
-          /*
-          const layoutOptions = {
-            directed: true,
-            padding: 10,
-            name: 'breadthfirst'
-          };
-          */
-          console.log(graph.$("#"+newNodeId));
+
           graph.$("#"+newNodeId).on("tap", (e)=>{
             const node = e.target;
             this.tapedLayer = node;
           });
-           /*
-          const layout = graph.elements().layout(layoutOptions);
-          layout.run();
-          */
         },
         addRecipe: function(){
           console.log(this.newRecipe);
+          console.log(this.newRecipe.layers);
+          console.log(this.newRecipe.graph);
+          console.log(this.newRecipe.edges);
         },
         toggleRecipe: function(row){
           if(!row.detailsShowing){
@@ -715,18 +712,8 @@
             layout: layoutOptions
           });
           layers.forEach(v=>{
-            const id = v["id"];
-              const node =  {
-                data: {
-                  id: id,
-                  name: v["name"],
-                  weight: 150,
-                  faveShape: "rectangle",
-                  faveColor: this.themeColor
-                },
-                position: v.position
-              };
-              cy.add(node);
+            const node = this.createGraphNode(v.id, v.name, v.position);
+            cy.add(node);
           });
           edges.forEach((e, i)=>{
             const edge = {
