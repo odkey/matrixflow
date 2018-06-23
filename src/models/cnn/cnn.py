@@ -57,9 +57,6 @@ class CNN(Model):
         G = nx.DiGraph()
         G.add_edges_from(ed)
         sorted_edges = list(nx.topological_sort(G))
-        print("########")
-        print(sorted_edges)
-        print("########")
         layers_dict = { layer["id"]: layer for layer in layers}
 
         for layer_id in sorted_edges:
@@ -67,33 +64,33 @@ class CNN(Model):
             name = layer["name"]
             id = layer["id"]
             print(name)
+            if "params" in layer:
+                params = layer["params"]
 
             if name == "inputData":
                 name = "input_data"
-                x_shape = [None, layer["dataWidth"], layer["dataHeight"]]
+                x_shape = [None, params["dataWidth"], params["dataHeight"]]
                 self.x = self.methods[name](x_shape)
                 self._change_edge_sources(id, self.x)
             elif name == "inputLabels":
                 name = "input_labels"
-                y_shape = [None, layer["nClass"]]
+                y_shape = [None, params["nClass"]]
                 self.y = self.methods[name](y_shape)
-                print("#########################")
                 self._change_edge_sources(id, self.y)
             else:
                 sources = self.edge_dict[id]
-                l = layer
                 for h in sources:
-                    name = l["name"]
+                    name = layer["name"]
                     if name == "reshape":
-                        arg = [h, l["shape"]]
+                        arg = [h, params["shape"]]
                     elif name == "conv2d":
-                        arg = [h, l["outSize"]]
+                        arg = [h, params["outSize"]]
                     elif name == "max_pool":
                         arg = [h]
                     elif name == "flatten":
                         arg = [h]
                     elif name == "fc":
-                        arg = [h, l["outSize"], l["act"]]
+                        arg = [h, params["outSize"], params["act"]]
                     elif name == "loss" or name == "acc":
                         arg = [h]
                     h = self.methods[name](*arg)

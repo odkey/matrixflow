@@ -400,19 +400,26 @@
             {
               id: 0,
               name: "inputData",
-              "dataWidth": 28,
-              "dataHeight": 28,
-              position: {x: 150, y: 100}
+              param: {
+                "dataWidth": 28,
+                "dataHeight": 28
+              },
+              graph:{
+                position: {x: 150, y: 100}
+              }
             },
-            {
-              id: 1,
+            { id: 1,
               name: "loss",
-              position: {x: 250, y: 200}
+              graph: {
+                position: {x: 250, y: 200}
+              }
             },
             {
               id: 2,
               name: "acc",
-              position: {x: 350, y: 200}
+              graph: {
+                position: {x: 350, y: 200}
+              }
             }
           ],
           "edges": [],
@@ -422,38 +429,55 @@
           {
             "name": "inputData",
             "type": "input",
-            "dataWidth": 28,
-            "dataHeight": 28
+            "param": {
+              "dataWidth": 28,
+              "dataHeight": 28
+            },
+            "graph": {}
           },
           {
             "name": "inputLabels",
             "type": "input",
-            "nClass": 10
+            "param": {
+              "nClass": 10
+            },
+            "graph": {}
           },
           {
             "name": "conv2d",
             "type": "layer",
-            "act": "relu",
-            "outSize": 32
+            "param": {
+              "act": "relu",
+              "outSize": 32
+            },
+            "graph": {}
           },
           {
             "name": "max_pool",
             "type": "layer",
+            "graph": {}
           },
           {
             "name": "fc",
             "type": "layer",
-            "outSize": 10,
-            "act": "ident"
+            "param": {
+              "outSize": 10,
+              "act": "ident"
+            },
+            "graph": {}
           },
           {
             "name": "flatten",
             "type": "layer",
+            "graph": {}
           },
           {
             "name": "reshape",
             "type": "layer",
-            "shape": [ -1, 28, 28, 1]
+            "param": {
+              "shape": [ -1, 28, 28, 1]
+            },
+            "graph": {}
           }
         ],
         learningProgress: 0,
@@ -610,16 +634,17 @@
           graph.add(edge);
 
         },
-        createGraphNode(id, name, position, d){
-          console.log(d);
+        createGraphNode(id, name, position, recipe){
+          console.log("createGraphNode");
+          console.log(recipe);
+          recipe.graph.faveColor = this.themeColor;
+          recipe.graph.faveShape = "rectangle";
           const data = Object.assign({
               id: id,
               name: name,
-              weight: 150,
-              faveShape: "rectangle",
-              faveColor: this.themeColor
+              param: recipe.param,
             },
-            d
+            recipe.graph
           );
           const node =  {
             data: data,
@@ -629,7 +654,6 @@
           return node;
         },
         onEnd: function(e){
-          console.log(e);
           const graph = this.newRecipe.graph;
           const name = e.clone.innerText.trim();
           const newNodeId = graph.nodes(".realNode").length;
@@ -679,13 +703,6 @@
           row.toggleDetails();
           this.$nextTick(()=>{
             this.buildGraph(row.item.body, row.index);
-            const recipe = row.item.body;
-            console.log(recipe.graph.elements());
-            const r = recipe.graph.elements().breadthFirstSearch({root: "#0" });
-            console.log("#3###########");
-            console.log(r.path.first());
-            r.path.select();
-            console.log("#3###########");
           });
         },
 
@@ -697,10 +714,17 @@
           nodes.forEach(v=>{
             if(v.position){
               console.log(v.data().id);
-              const layer = Object.assign({}, v.data());
-              layer.position = v.position();
-              layer.width = v.width();
-              layer.height = v.height();
+              const data = v.data();
+              const layer = {
+                id: data.id,
+                name: data.name,
+                params: data.param,
+                graph: {
+                  position: v.position(),
+                  width: v.width(),
+                  height: v.height(),
+                }
+              }
               layers.push(layer);
             }
           });
@@ -772,7 +796,7 @@
             layout: layoutOptions
           });
           layers.forEach(v=>{
-            const node = this.createGraphNode(v.id, v.name, v.position, v);
+            const node = this.createGraphNode(v.id, v.name, v.graph.position, v);
             cy.add(node);
           });
           edges.forEach((e, i)=>{
@@ -786,7 +810,8 @@
             cy.add(edge);
           });
           const layout = cy.elements().layout(layoutOptions);
-          if(layers.length ==0 || !layers[0].position){
+          if(layers.length ==0 || !layers[0].graph.position){
+           console.log("set postions from dfs.");
            layout.run();
           }else{
             console.log("set postions from data.");
