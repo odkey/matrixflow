@@ -552,16 +552,21 @@
       },
       methods: {
         deleteEdge: function(row){
-          const edges = row.neighborhood("edge");
-          const deleteTargetId = row.data().id;
-          console.log(deleteTargetId);
-          for(let i=0; i<edges.length; i++){
-            if(edges[i].data().target == deleteTargetId){
-              const id = edges[i].data().id;
-              this.newRecipe.graph.remove("#"+id);
-              console.log(id);
-              break;
+          if(row.hasClass("realNode")){
+            const edges = row.neighborhood("edge");
+            const deleteTargetId = row.data().id;
+            console.log(deleteTargetId);
+            for(let i=0; i<edges.length; i++){
+              if(edges[i].data().target == deleteTargetId){
+                const id = edges[i].data().id;
+                this.newRecipe.graph.remove("#"+id);
+                console.log(id);
+                break;
+              }
             }
+          }else{
+            const id = row.data().id;
+            this.newRecipe.graph.remove("#"+id);
           }
         },
         clickNode: function(graph, pureNode){
