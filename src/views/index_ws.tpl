@@ -182,6 +182,17 @@
                     <div>
                       id: <b>${tapedLayer.data().id}</b>
                     </div>
+                    <div v-for="(p,k) in tapedLayer.data().params">
+                      <span v-if="k == 'outSize'">
+                        ${k}: <b-form-input v-model="tapedLayer.data().params.outSize" type="number"></b-form-input>
+                      </span>
+                      <span v-else-if="k == 'act'">
+                        ${k}: <b-form-input v-model="tapedLayer.data().params.act" type="text"></b-form-input>
+                      </span>
+                      <span v-else>
+                        ${k}: ${p}
+                      </span>
+                    </div>
                     <b-list-group v-for="node in tapedLayer.neighborhood('node')">
                       <b-list-group-item v-if="node.data">
                         ${node.data().name} (${node.data().id})
@@ -400,7 +411,7 @@
             {
               id: 0,
               name: "inputData",
-              param: {
+              params: {
                 "dataWidth": 28,
                 "dataHeight": 28
               },
@@ -429,7 +440,7 @@
           {
             "name": "inputData",
             "type": "input",
-            "param": {
+            "params": {
               "dataWidth": 28,
               "dataHeight": 28
             },
@@ -438,7 +449,7 @@
           {
             "name": "inputLabels",
             "type": "input",
-            "param": {
+            "params": {
               "nClass": 10
             },
             "graph": {}
@@ -446,7 +457,7 @@
           {
             "name": "conv2d",
             "type": "layer",
-            "param": {
+            "params": {
               "act": "relu",
               "outSize": 32
             },
@@ -460,9 +471,9 @@
           {
             "name": "fc",
             "type": "layer",
-            "param": {
-              "outSize": 10,
-              "act": "ident"
+            "params": {
+              "act": "ident",
+              "outSize": 10
             },
             "graph": {}
           },
@@ -474,7 +485,7 @@
           {
             "name": "reshape",
             "type": "layer",
-            "param": {
+            "params": {
               "shape": [ -1, 28, 28, 1]
             },
             "graph": {}
@@ -647,7 +658,7 @@
           const data = Object.assign({
               id: id,
               name: name,
-              param: recipe.param,
+              params: recipe.params,
             },
             recipe.graph
           );
@@ -723,7 +734,7 @@
               const layer = {
                 id: data.id,
                 name: data.name,
-                params: data.param,
+                params: data.params,
                 graph: {
                   position: v.position(),
                   width: v.width(),

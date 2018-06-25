@@ -30,6 +30,7 @@ class Model:
         return x
 
     def conv2d(self, input, out_size, act="relu"):
+        out_size = int(out_size)
         shape = input.get_shape().as_list()
         in_channel = shape[-1]
         with tf.name_scope("conv_1"):
