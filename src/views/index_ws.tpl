@@ -177,30 +177,30 @@
                 <b-col sm="3" class="text-sm-center">
                   <div class="layer-info">
                     <div>
-                      name: <b>${tapedLayer.data().name}</b>
+                      name: <b>${tappedLayer.data().name}</b>
                     </div>
                     <div>
-                      id: <b>${tapedLayer.data().id}</b>
+                      id: <b>${tappedLayer.data().id}</b>
                     </div>
-                    <div v-for="(p,k) in tapedLayer.data().params">
+                    <div v-for="(p,k) in tappedLayer.data().params">
                       <span v-if="k == 'outSize'">
-                        ${k}: <b-form-input v-model="tapedLayer.data().params.outSize" type="number"></b-form-input>
+                        ${k}: <b-form-input v-model="tappedLayer.data().params.outSize" type="number"></b-form-input>
                       </span>
                       <span v-else-if="k == 'act'">
-                        ${k}: <b-form-input v-model="tapedLayer.data().params.act" type="text"></b-form-input>
+                        ${k}: <b-form-input v-model="tappedLayer.data().params.act" type="text"></b-form-input>
                       </span>
                       <span v-else>
                         ${k}: ${p}
                       </span>
                     </div>
-                    <b-list-group v-for="node in tapedLayer.neighborhood('node')">
+                    <b-list-group v-for="node in tappedLayer.neighborhood('node')">
                       <b-list-group-item v-if="node.data">
                         ${node.data().name} (${node.data().id})
                         <span class="edge-delete" @click="deleteEdge(node)">X</span>
                       </b-list-group-item>
                     </b-list-group>
                     <div>
-                      <b-button @click.stop="clickNode(newRecipe.graph, tapedLayer)">add edge</b-button>
+                      <b-button @click.stop="clickNode(newRecipe.graph, tappedLayer)">add edge</b-button>
                     </div>
                   </div>
                 </b-col>
@@ -498,7 +498,7 @@
         showAddRecipe: false,
         languageOptions: [],
         selectedMenu: "data",
-        tapedLayer: {
+        tappedLayer: {
           data: () => {
             return {
               name: ""
@@ -686,8 +686,12 @@
           graph.add(node);
 
           graph.$("#"+newNodeId).on("tap", (e)=>{
+            if(this.tappedLayer.removeClass){
+              this.tappedLayer.removeClass("selected");
+            }
             const node = e.target;
-            this.tapedLayer = node;
+            node.addClass('selected');
+            this.tappedLayer = node;
           });
         },
         addRecipe: function(){
@@ -807,6 +811,14 @@
                   'text-valign': 'center',
                   'text-halign': 'center'
                 }
+              },
+              {
+                selector: "node.selected",
+                style: {
+                  'border-color': '#f44242',
+                  'border-width': 3,
+                  'border-opacity': 0.8
+                }
               }
             ],
             layout: layoutOptions
@@ -840,8 +852,12 @@
             }
           }
           cy.nodes().on("tap", (e)=>{
+            if(this.tappedLayer.removeClass){
+              this.tappedLayer.removeClass("selected");
+            }
             const node = e.target;
-            this.tapedLayer = node;
+            node.addClass('selected');
+            this.tappedLayer = node;
           });
           body.graph = cy;
 
