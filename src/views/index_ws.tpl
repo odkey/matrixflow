@@ -723,6 +723,9 @@
           row.toggleDetails();
           this.$nextTick(()=>{
             this.buildGraph(row.item.body, row.index);
+            row.item.body.graph.autolock(true);
+            row.item.body.graph.zoomingEnabled(false);
+            row.item.body.graph.panningEnabled(false);
           });
         },
 
