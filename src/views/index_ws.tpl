@@ -187,7 +187,7 @@
                         ${k}: <b-form-input v-model="tappedLayer.data().params.outSize" type="number"></b-form-input>
                       </span>
                       <span v-else-if="k == 'act'">
-                        ${k}: <b-form-input v-model="tappedLayer.data().params.act" type="text"></b-form-input>
+                        ${$t("recipe.activation")} : <b-form-select v-model="tappedLayer.data().params.act" :options="activationOptions" class="mb-3" size="sm" />
                       </span>
                       <span v-else>
                         ${k}: ${p}
@@ -511,6 +511,10 @@
         selectedLanguage: language,
         dataSortBy: "create_time",
         dataSortDesc: true,
+        activationOptions:[
+          {value: "relu", text: "ReLU"},
+          {value: "ident", text: i18n.t("activation.ident")}
+        ],
         chartOptions: {responsive: false, maintainAspectRatio: false},
         accuracyTrainChartData: {
           labels: [],

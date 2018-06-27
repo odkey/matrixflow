@@ -32,7 +32,8 @@
       "nLabels": "ラベル数"
     },
     "recipe":{
-      "id": "レシピID"
+      "id": "レシピID",
+      "activation": "活性化関数"
     },
     "tab":{
       "menu":{
@@ -53,6 +54,9 @@
     },
     "setting":{
       "language": "言語"
+    },
+    "activation":{
+      "ident": "恒等関数"
     }
   },
 
@@ -89,7 +93,8 @@
       "nLabels": "Number of Labels"
     },
     "recipe":{
-      "id": "Recipe ID"
+      "id": "Recipe ID",
+      "activation": "Activation"
     },
     "tab":{
       "menu":{
@@ -110,6 +115,9 @@
     },
     "setting":{
       "language": "Language"
+    },
+    "activation": {
+      "ident": "identity"
     }
   }
 }
