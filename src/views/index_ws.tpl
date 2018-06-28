@@ -20,6 +20,7 @@
     <script src="statics/js/cytoscape.js"></script>
 
     <link type="text/css" rel="stylesheet" href="statics/css/main.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
@@ -176,31 +177,56 @@
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-center">
                   <div class="layer-info">
-                    <div>
-                      name: <b>${tappedLayer.data().name}</b>
+                    <b-row>
+                      <b-col class="text-sm-right">
+                        name :
+                      </b-col>
+                      <b-col  class="text-sm-left">
+                        <b>${newRecipe.tappedLayer.data().name}</b>
+                      </b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col class="text-sm-right">
+                        id :
+                      </b-col>
+                      <b-col class="text-sm-left">
+                        <b>${newRecipe.tappedLayer.data().id}</b>
+                      </b-col>
+                    </b-row>
+                    <div v-for="(p, k) in newRecipe.tappedLayer.data().params">
+                      <b-row v-if="k == 'outSize'">
+                        <b-col class="text-sm-right">
+                          ${k} :
+                        </b-col>
+                        <b-col class="text-sm-left">
+                          <b-form-input v-model="newRecipe.tappedLayer.data().params.outSize" type="number" size="sm"></b-form-input>
+                        </b-col>
+                      </b-row>
+                      <b-row v-else-if="k == 'act'">
+                        <b-col class="text-sm-right">
+                          ${$t("recipe.activation")} :
+                        </b-col>
+                        <b-col class="text-sm-left">
+                          <b-form-select v-model="newRecipe.tappedLayer.data().params.act" :options="activationOptions" class="mb-3" size="sm" />
+                        </b-col>
+                      </b-row>
+                      <b-row v-else>
+                        <b-col class="text-sm-right">
+                          ${k} :
+                        </b-col>
+                        <b-col class="text-sm-left">
+                          ${p}
+                        </b-col>
+                      </b-row>
                     </div>
-                    <div>
-                      id: <b>${tappedLayer.data().id}</b>
-                    </div>
-                    <div v-for="(p,k) in tappedLayer.data().params">
-                      <span v-if="k == 'outSize'">
-                        ${k}: <b-form-input v-model="tappedLayer.data().params.outSize" type="number"></b-form-input>
-                      </span>
-                      <span v-else-if="k == 'act'">
-                        ${$t("recipe.activation")} : <b-form-select v-model="tappedLayer.data().params.act" :options="activationOptions" class="mb-3" size="sm" />
-                      </span>
-                      <span v-else>
-                        ${k}: ${p}
-                      </span>
-                    </div>
-                    <b-list-group v-for="node in tappedLayer.neighborhood('node')">
+                    <b-list-group v-for="node in newRecipe.tappedLayer.neighborhood('node')">
                       <b-list-group-item v-if="node.data">
                         ${node.data().name} (${node.data().id})
-                        <span class="edge-delete" @click="deleteEdge(node)">X</span>
+                        <span class="edge-delete" @click="deleteEdge(node)"><i class="fa fa-remove"></i></span>
                       </b-list-group-item>
                     </b-list-group>
                     <div>
-                      <b-button @click.stop="clickNode(newRecipe.graph, tappedLayer)">add edge</b-button>
+                      <b-button @click.stop="clickNode(newRecipe.graph, newRecipe.tappedLayer)">add edge</b-button>
                     </div>
                   </div>
                 </b-col>
@@ -402,12 +428,22 @@
           description: ""
         },
         newRecipe: {
-          "info": {
-            "name": "",
-            "description": "",
-            "graph": {}
+          tappedLayer: {
+            data: () => {
+              return {
+                name: ""
+              };
+            },
+            neighborhood: (selecter) => {
+              return [];
+            }
           },
-          "layers": [
+          info: {
+            name: "",
+            description: "",
+            graph: {}
+          },
+          layers: [
             {
               id: 0,
               name: "inputData",
@@ -433,8 +469,8 @@
               }
             }
           ],
-          "edges": [],
-          "train": {}
+          edges: [],
+          train: {}
         },
         recipeLayers: [
           {
@@ -498,16 +534,6 @@
         showAddRecipe: false,
         languageOptions: [],
         selectedMenu: "data",
-        tappedLayer: {
-          data: () => {
-            return {
-              name: ""
-            };
-          },
-          neighborhood: (selecter) => {
-            return [];
-          },
-        },
         selectedLanguage: language,
         dataSortBy: "create_time",
         dataSortDesc: true,
@@ -690,12 +716,12 @@
           graph.add(node);
 
           graph.$("#"+newNodeId).on("tap", (e)=>{
-            if(this.tappedLayer.removeClass){
-              this.tappedLayer.removeClass("selected");
+            if(this.newRecipe.tappedLayer.removeClass){
+              this.newRecipe.tappedLayer.removeClass("selected");
             }
             const node = e.target;
             node.addClass('selected');
-            this.tappedLayer = node;
+            this.newRecipe.tappedLayer = node;
           });
         },
         addRecipe: function(){
@@ -772,6 +798,7 @@
             pan: recipe.graph.pan()
           };
           delete recipe.graph;
+          delete recipe.tappedLayer;
           return recipe;
         },
 
@@ -859,12 +886,12 @@
             }
           }
           cy.nodes().on("tap", (e)=>{
-            if(this.tappedLayer.removeClass){
-              this.tappedLayer.removeClass("selected");
+            if(body.tappedLayer.removeClass){
+              body.tappedLayer.removeClass("selected");
             }
             const node = e.target;
             node.addClass('selected');
-            this.tappedLayer = node;
+            body.tappedLayer = node;
           });
           body.graph = cy;
 
@@ -1085,6 +1112,18 @@
               console.log(this.learningData);
             }else if (res["action"] == "get_recipe_list") {
               this.recipes = res["list"]
+              this.recipes.forEach(v=>{
+                v.body.tappedLayer = {
+                  data: () => {
+                    return {
+                      name: ""
+                    };
+                  },
+                  neighborhood: (selecter) => {
+                    return [];
+                  }
+                };
+              });
             } else if (res["action"] == "addRecipe"){
               const recipes_req = {"action": "get_recipe_list"};
               this.sendMessage(recipes_req);
