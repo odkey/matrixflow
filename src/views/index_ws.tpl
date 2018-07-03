@@ -179,7 +179,7 @@
                   <div class="layer-info">
                     <b-row>
                       <b-col class="text-sm-right">
-                        name :
+                        ${$t("recipe.layerName")} :
                       </b-col>
                       <b-col  class="text-sm-left">
                         <b>${newRecipe.tappedLayer.data().name}</b>
@@ -187,7 +187,7 @@
                     </b-row>
                     <b-row>
                       <b-col class="text-sm-right">
-                        id :
+                        ${$t("recipe.layerId")} :
                       </b-col>
                       <b-col class="text-sm-left">
                         <b>${newRecipe.tappedLayer.data().id}</b>

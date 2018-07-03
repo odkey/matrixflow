@@ -33,7 +33,9 @@
     },
     "recipe":{
       "id": "レシピID",
-      "activation": "活性化関数"
+      "activation": "活性化関数",
+      "layerName": "名前",
+      "layerId": "ID"
     },
     "tab":{
       "menu":{
@@ -94,7 +96,9 @@
     },
     "recipe":{
       "id": "Recipe ID",
-      "activation": "Activation"
+      "activation": "Activation",
+      "layerName": "Name",
+      "layerId": "ID"
     },
     "tab":{
       "menu":{
