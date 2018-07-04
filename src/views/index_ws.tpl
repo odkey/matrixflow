@@ -708,7 +708,7 @@
           let data = null;
           for(let i=0; i< this.recipeLayers.length; i++){
             if(this.recipeLayers[i].name == name){
-              data = this.recipeLayers[i];
+              data = JSON.parse(JSON.stringify(this.recipeLayers[i]));
               break;
             }
           }
@@ -720,7 +720,7 @@
               this.newRecipe.tappedLayer.removeClass("selected");
             }
             const node = e.target;
-            node.addClass('selected');
+            node.addClass("selected");
             this.newRecipe.tappedLayer = node;
           });
         },
