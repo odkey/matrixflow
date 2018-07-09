@@ -427,51 +427,7 @@
           name: "",
           description: ""
         },
-        newRecipe: {
-          tappedLayer: {
-            data: () => {
-              return {
-                name: ""
-              };
-            },
-            neighborhood: (selecter) => {
-              return [];
-            }
-          },
-          info: {
-            name: "",
-            description: "",
-            graph: {}
-          },
-          layers: [
-            {
-              id: 0,
-              name: "inputData",
-              params: {
-                "dataWidth": 28,
-                "dataHeight": 28
-              },
-              graph:{
-                position: {x: 150, y: 100}
-              }
-            },
-            { id: 1,
-              name: "loss",
-              graph: {
-                position: {x: 250, y: 200}
-              }
-            },
-            {
-              id: 2,
-              name: "acc",
-              graph: {
-                position: {x: 350, y: 200}
-              }
-            }
-          ],
-          edges: [],
-          train: {}
-        },
+        newRecipe: {},
         recipeLayers: [
           {
             "name": "inputData",
@@ -609,6 +565,54 @@
             const id = row.data().id;
             this.newRecipe.graph.remove("#"+id);
           }
+        },
+        initNewRecipe: function(){
+          console.log("init newRecipe");
+          this.newRecipe = {
+            tappedLayer: {
+              data: () => {
+                return {
+                  name: ""
+                };
+              },
+              neighborhood: (selecter) => {
+                return [];
+              }
+            },
+            info: {
+              name: "",
+              description: "",
+              graph: {}
+            },
+            layers: [
+              {
+                id: 0,
+                name: "inputData",
+                params: {
+                  "dataWidth": 28,
+                  "dataHeight": 28
+                },
+                graph:{
+                  position: {x: 150, y: 100}
+                }
+              },
+              { id: 1,
+                name: "loss",
+                graph: {
+                  position: {x: 250, y: 200}
+                }
+              },
+              {
+                id: 2,
+                name: "acc",
+                graph: {
+                  position: {x: 350, y: 200}
+                }
+              }
+            ],
+            edges: [],
+            train: {}
+          };
         },
         clickNode: function(graph, pureNode){
           const node = pureNode.data();
@@ -1075,10 +1079,12 @@
           return options
         },
       },
-
+      created: function(){
+        this.initNewRecipe()
+      },
       mounted: function (){
-        this.setRecipeFields();
         this.setDataFields();
+        this.setRecipeFields();
         this.languageOptions = [
           { value: "en", text: "English" },
           { value: "ja", text: "日本語" }
@@ -1127,6 +1133,8 @@
             } else if (res["action"] == "addRecipe"){
               const recipes_req = {"action": "get_recipe_list"};
               this.sendMessage(recipes_req);
+              this.initNewRecipe()
+              this.buildGraph(this.newRecipe, "-new");
             }else if (res["action"] == "deleteRecipe") {
               console.log(res);
               for(let i=0; i< this.recipes.length; i++){
