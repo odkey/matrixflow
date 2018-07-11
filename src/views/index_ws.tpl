@@ -225,8 +225,9 @@
                         <span class="edge-delete" @click="deleteEdge(node)"><i class="fa fa-remove"></i></span>
                       </b-list-group-item>
                     </b-list-group>
-                    <div>
-                      <b-button @click.stop="clickNode(newRecipe.graph, newRecipe.tappedLayer)">add edge</b-button>
+                    <div v-if="newRecipe.tappedLayer.data().name">
+                      <b-button @click.stop="clickNode(newRecipe.graph, newRecipe.tappedLayer)">${$t("button.addEdge")}</b-button>
+                      <b-button @click.stop="deleteNode(newRecipe.tappedLayer.data().id)">${$t("button.delete")}</b-button>
                     </div>
                   </div>
                 </b-col>
@@ -566,19 +567,28 @@
             this.newRecipe.graph.remove("#"+id);
           }
         },
+        deleteNode: function(id){
+          console.log(id);
+          this.newRecipe.graph.remove("#"+id);
+          this.newRecipe.tappedLayer = this.createEmptyLayer();
+        },
+        createEmptyLayer: function(){
+          const layer = {
+            data: () => {
+              return {
+                name: ""
+              };
+            },
+            neighborhood: (selecter) => {
+              return [];
+            }
+          };
+          return layer
+        },
         initNewRecipe: function(){
           console.log("init newRecipe");
           this.newRecipe = {
-            tappedLayer: {
-              data: () => {
-                return {
-                  name: ""
-                };
-              },
-              neighborhood: (selecter) => {
-                return [];
-              }
-            },
+            tappedLayer: this.createEmptyLayer(),
             info: {
               name: "",
               description: "",
@@ -764,6 +774,9 @@
         },
 
         createRecipe: function(recipe){
+          console.log("#######");
+          console.log(recipe);
+          console.log("#######");
           const nodes = recipe.graph.elements("node");
           const graphEdges = recipe.graph.elements("edge");
 

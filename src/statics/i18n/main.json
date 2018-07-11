@@ -15,6 +15,7 @@
       "delete": "削除",
       "upload": "アップロード",
       "cancel": "キャンセル",
+      "addEdge": "エッジ追加",
       "showDetails": "詳細表示"
     },
     "table": {
@@ -78,6 +79,7 @@
       "delete": "Delete",
       "upload": "Upload",
       "cancel": "Cancel",
+      "addEdge": "Add Edge",
       "showDetails": "Show Detail"
     },
     "table": {
