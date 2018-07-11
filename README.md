@@ -3,6 +3,7 @@ Deep Learning Framework for Non-Engineers.
 
 
 ## Demo  
+![layers](https://github.com/Tdual/matrixflow/blob/master/layers.gif)
 ![learning](https://github.com/Tdual/matrixflow/blob/master/learning.gif)
 
 ## Installation
@@ -10,6 +11,10 @@ Deep Learning Framework for Non-Engineers.
 ## Usage  
 
 ## Contributing
+- Python 3  
+- Vue.js  
+- WorkBoard https://trello.com/b/pE8B7T4m/matrixflow   
+
 
 ## License
 ### The MIT License   
