@@ -62,6 +62,7 @@ class Model:
         return output
 
     def fc(self, input, size=10, act="relu"):
+        size = int(size)
         with tf.name_scope("fc"):
             shape = int(input.shape[1])
             W = self.weight_variable([shape, size])
