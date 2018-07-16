@@ -16,7 +16,9 @@
       "upload": "アップロード",
       "cancel": "キャンセル",
       "addEdge": "エッジ追加",
-      "showDetails": "詳細表示"
+      "showDetails": "詳細表示",
+      "resetZoom": "ズームをリセット",
+      "resetPan": "移動をリセット"
     },
     "table": {
       "name": "名前",
@@ -80,7 +82,9 @@
       "upload": "Upload",
       "cancel": "Cancel",
       "addEdge": "Add Edge",
-      "showDetails": "Show Detail"
+      "showDetails": "Show Detail",
+      "resetZoom": "Reset Zoom",
+      "resetPan": "Reset Pan"
     },
     "table": {
       "name": "Name",

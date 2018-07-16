@@ -94,7 +94,7 @@
         <template slot="showDetails" slot-scope="row">
           <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
             ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
-        </b-button>
+          </b-button>
         </template>
         <template slot="row-details" slot-scope="row">
           <b-card>
@@ -174,8 +174,11 @@
                   </draggable>
                 </b-col>
               </b-row>
+
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-center">
+                  <b-button @click.stop="resetZoom(newRecipe)" :size="sm"> ${$t("button.resetZoom")} </b-button>
+                  <b-button @click.stop="resetPan(newRecipe)" :size="sm"> ${$t("button.resetPan")}</b-button>
                   <div class="layer-info">
                     <b-row>
                       <b-col class="text-sm-right">
@@ -254,6 +257,7 @@
           </template>
           <template slot="row-details" slot-scope="row">
             <b-card>
+
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-right"><b>${$t("recipe.id")}:</b></b-col>
                 <b-col>${ row.item.id }</b-col>
@@ -274,6 +278,7 @@
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
                 <b-col>${ row.item.update_time }</b-col>
               </b-row>
+
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-right"></b-col>
                 <b-col>
@@ -282,13 +287,16 @@
                   </div>
                 </b-col>
               </b-row>
+
               <b-row v-if=false>
                 <b-col sm="3" class="text-sm-right"></b-col>
                 <b-col>
                   <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
                 </b-col>
               </b-row>
-              <b-button size="sm" @click.stop="closeRecipe(row)">${$t("button.close")}</b-button>
+              <b-button size="sm" @click.stop="closeRecipe(row)">
+                ${$t("button.close")}
+              </b-button>
               <div class="button-right">
                 <b-btn size="sm" v-b-modal="'deleteRecipe'+row.index">${$t("button.delete")}</b-btn>
               </div>

@@ -195,6 +195,12 @@ window.onload = function() {
       result: ""
     },
     methods: {
+      resetZoom: function(recipe){
+        recipe.graph.zoom(1.0);
+      },
+      resetPan: function(recipe){
+        recipe.graph.pan({x:0,y:0});
+      },
       deleteEdge: function(row){
         if(row.hasClass("realNode")){
           const edges = row.neighborhood("edge");
