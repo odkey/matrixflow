@@ -49,7 +49,6 @@ window.onload = function() {
     setLocalSettings("language", language)
 
   }
-  console.log(language);
 
   const translations = res.data;
   Vue.use(VueI18n);
