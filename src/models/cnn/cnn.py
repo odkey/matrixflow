@@ -8,9 +8,11 @@ from collections import defaultdict
 import datetime
 import networkx as nx
 
+sys.path.insert(0, '../..')
 from ..recipe import Model
 from ..recipemanager import Manager as RecipeManager
 from ..imagemanager import Manager as ImageManager
+from filemanager import save_json
 
 out_dir = "logs"
 save_checkpoint = True
@@ -110,14 +112,8 @@ class CNN(Model):
         #self.loss(h_8)
         #self.acc(h_8)
 
-    def train(self, data_path, ws=None):
+    def train(self, data_path, ws=None, model_info=None):
         self.ima.load_data(os.path.join(self.data_dir, data_path))
-
-        log_dir = "./log"
-        if tf.gfile.Exists(log_dir):
-            tf.gfile.DeleteRecursively(log_dir)
-        tf.gfile.MakeDirs(log_dir)
-
         config = self.recipe["train"]
 
         with tf.Graph().as_default():
@@ -126,6 +122,13 @@ class CNN(Model):
                 self.build_nn()
                 self.id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
                 self.out_dir = os.path.join(out_dir, self.id)
+
+                if model_info:
+                    print("save model info")
+                    info_dir = os.path.join(self.out_dir, "info")
+                    os.makedirs(info_dir)
+                    info_path = os.path.join(info_dir, "info.json")
+                    save_json(model_info, info_path)
 
                 global_step = tf.Variable(0, name="global_step", trainable=False)
                 optimizer = tf.train.AdamOptimizer(config["learning_rate"])

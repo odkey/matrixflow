@@ -101,16 +101,38 @@ def handler(wsock, message):
             res = fm.get_recipe_list(offset, limit)
             res["action"] = obj["action"]
             wsock.send(json.dumps(res))
+
+        elif obj["action"] == "getModelList":
+            offset = obj.get("offset", 0)
+            limit = obj.get("limit")
+            res = fm.get_model_list()
+            res["action"] = obj["action"]
+            wsock.send(json.dumps(res))
+
         elif obj["action"] == "start_learing":
+
             recipe_id = obj["recipeId"]
             data_id = obj["dataId"]
             model = CNN(recipe_id)
-            model.train(data_id, wsock)
+            model_info = {
+                "name": "name",
+                "description": "desc"
+            }
+            model.train(data_id, wsock, model_info)
 
         elif obj["action"] == "addRecipe":
             recipe = obj["recipe"]
             res = fm.save_recipe(recipe)
             res["action"] = obj["action"]
+            wsock.send(json.dumps(res))
+
+        elif obj["action"] == "deleteModel":
+            model_id = obj["modelId"]
+            r = fm.delete_model(model_id)
+            log_debug(r)
+            res = {}
+            res["action"] = obj["action"]
+            res["modelId"] = model_id
             wsock.send(json.dumps(res))
 
         elif obj["action"] == "deleteRecipe":

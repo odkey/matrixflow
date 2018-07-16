@@ -177,8 +177,8 @@
 
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-center">
-                  <b-button @click.stop="resetZoom(newRecipe)" :size="sm"> ${$t("button.resetZoom")} </b-button>
-                  <b-button @click.stop="resetPan(newRecipe)" :size="sm"> ${$t("button.resetPan")}</b-button>
+                  <b-button @click.stop="resetZoom(newRecipe)" size="sm"> ${$t("button.resetZoom")} </b-button>
+                  <b-button @click.stop="resetPan(newRecipe)" size="sm"> ${$t("button.resetPan")}</b-button>
                   <div class="layer-info">
                     <b-row>
                       <b-col class="text-sm-right">
@@ -350,6 +350,53 @@
 
       <div v-show="selectedMenu == 'model'">
         <h2>${$t("tab.menu.model")}</h2>
+        <b-table :items="models" :fields="modelFields" hover>
+          <template slot="showDetails" slot-scope="row">
+            <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
+              ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
+            </b-button>
+          </template>
+          <template slot="row-details" slot-scope="row">
+            <b-card>
+
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("model.id")}:</b></b-col>
+                <b-col>${ row.item.id }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
+                <b-col>${ row.item.name }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
+                <b-col>${ row.item.description }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
+                <b-col>${ row.item.create_time }</b-col>
+              </b-row>
+              <b-row class="mb-2">
+                <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
+                <b-col>${ row.item.update_time }</b-col>
+              </b-row>
+
+              <div class="button-right">
+                <b-btn size="sm" v-b-modal="'deleteModel'+row.index">${$t("button.delete")}</b-btn>
+              </div>
+              <b-modal v-bind:id="'deleteModel'+row.index" ref="modal" @ok="deleteModel(row)">
+                <div slot="modal-title">
+                  ${$t("message.deleteModel")}
+                </div>
+                <div slot="modal-cancel">
+                  ${$t("button.cancel")}
+                </div>
+                <div>
+                  ${row.item.name} (${row.item.id})
+                </div>
+              </b-modal>
+            </b-card>
+          </template>
+        </b-table>
       </div>
 
       <div v-show="selectedMenu == 'setting'">

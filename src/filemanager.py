@@ -8,6 +8,7 @@ from pathlib import Path
 
 recipe_dir = "./recipes"
 data_dir = "./data"
+model_dir = "./logs"
 
 def upload_file(files):
     allow_file = ["jpeg","png","jpg","JPEG","JPG","PNG"]
@@ -112,12 +113,58 @@ def put_data_info(new_data, file_id):
     file_path = p / "info.json"
     save_json(new_data, file_path)
 
+def get_create_time(p):
+    """
+    p Path object
+    """
+    epoch_time = os.path.getctime(p)
+    create_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
+    return create_time
+
+def get_update_time(p):
+    """
+    p Path object
+    """
+    epoch_time = os.path.getmtime(p)
+    update_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
+    return update_time
+
+def get_model_list():
+    p = Path(model_dir)
+    p_list = [x for x in p.iterdir() if x.is_dir()]
+    length = len(p_list)
+    models = []
+    for j in p_list:
+        id = j.name
+        info = j / "info" / "info.json"
+        if info.exists():
+            with open(info, "r") as f:
+                body = json.load(f)
+        else:
+            body = {}
+        create_time = get_create_time(j)
+        update_time = get_update_time(j)
+        model = {
+            "id": id,
+            "name": body.get("name", ""),
+            "description": body.get("description", ""),
+            "update_time": update_time,
+            "create_time": create_time
+        }
+        models.append(model)
+    res = {
+            "status": "success",
+            "data_type": "list",
+            "total": length,
+            "list": models
+    }
+    return res
+
 
 
 def get_data_list():
     p = Path(data_dir)
     p_list = [x for x in p.iterdir() if x.is_dir()]
-    print(p_list)
     length = len(p_list)
     data = []
     for j in p_list:
@@ -140,11 +187,8 @@ def get_data_list():
         else:
             n_labels = 0
 
-        epoch_time = os.path.getctime(j)
-        create_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
-
-        epoch_time = os.path.getmtime(j)
-        update_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
+        create_time = get_create_time(j)
+        update_time = get_update_time(j)
         rec = {
             "id": id,
             "nImages": n_images,
@@ -204,11 +248,8 @@ def get_recipe_list(offset=0, limit=None):
         with open(j, "r") as f:
             body = json.load(f)
 
-        epoch_time = os.path.getctime(j)
-        create_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
-
-        epoch_time = os.path.getmtime(j)
-        update_time = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%d %H:%M:%S")
+        create_time = get_create_time(j)
+        update_time = get_update_time(j)
         rec = {
             "id": id,
             "body": body,
@@ -248,6 +289,17 @@ def update_recipe(id, obj):
 
 def delete_recipe(id):
     p = Path(recipe_dir) / id
+    if os.path.isdir(p):
+        shutil.rmtree(p)
+    res = {
+        "status": "success",
+        "data_type": "delete"
+    }
+    return res
+
+
+def delete_model(id):
+    p = Path(model_dir) / id
     if os.path.isdir(p):
         shutil.rmtree(p)
     res = {

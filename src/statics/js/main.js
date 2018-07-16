@@ -65,11 +65,13 @@ window.onload = function() {
       themeColor: themeColor,
       ws : new WebSocket(url),
       recipes: [],
+      models: [],
       learningData: [],
       selectedRecipe: "",
       selectedLearningData: "",
       recipeFields: {},
       dataFields: {},
+      modelFields: {},
       newData: {
         name: "",
         description: ""
@@ -587,6 +589,15 @@ window.onload = function() {
         }
         this.sendMessage(req)
       },
+      deleteModel: function(row){
+        const id = row.item.id;
+        console.log(id);
+        const req = {
+          action: "deleteModel",
+          modelId: id
+        }
+        this.sendMessage(req)
+      },
       deleteData: function(row){
         const dataId = row.item.id;
         console.log(dataId);
@@ -703,6 +714,34 @@ window.onload = function() {
             sortable: false,
           }
         };
+      },
+      setModelFields: function(){
+        this.modelFields = {
+          id: {
+            label: this.$i18n.t("model.id"),
+            sortable: false
+          },
+          name: {
+            label: this.$i18n.t("table.name"),
+            sortable: true,
+          },
+          description: {
+            label: this.$i18n.t("table.description"),
+            sortable: false,
+          },
+          update_time: {
+            label: this.$i18n.t("table.updateTime"),
+            sortable: true,
+          },
+          create_time: {
+            label: this.$i18n.t("table.createTime"),
+            sortable: true,
+          },
+          showDetails: {
+            label: this.$i18n.t("table.details"),
+            sortable: false,
+          }
+        };
       }
     },
     watch: {
@@ -750,6 +789,7 @@ window.onload = function() {
     mounted: function (){
       this.setDataFields();
       this.setRecipeFields();
+      this.setModelFields();
       this.languageOptions = [
         { value: "en", text: "English" },
         { value: "ja", text: "日本語" }
@@ -769,6 +809,9 @@ window.onload = function() {
 
         const data_req = {"action": "get_data_list"};
         this.sendMessage(data_req);
+
+        const model_req = {"action": "getModelList"};
+        this.sendMessage(model_req);
       };
       this.ws.onclose = function(e){
         console.log("we close.");
@@ -781,6 +824,9 @@ window.onload = function() {
           if (res["action"] == "get_data_list") {
             this.learningData = res["list"]
             console.log(this.learningData);
+          }else if (res["action"] == "getModelList") {
+            console.log(res);
+            this.models = res["list"]
           }else if (res["action"] == "get_recipe_list") {
             this.recipes = res["list"]
             this.recipes.forEach(v=>{
@@ -800,6 +846,16 @@ window.onload = function() {
             this.sendMessage(recipes_req);
             this.initNewRecipe()
             this.buildGraph(this.newRecipe, "-new");
+
+          }else if (res["action"] == "deleteModel") {
+            console.log(res);
+            for(let i=0; i< this.models.length; i++){
+              if(this.models[i].id == res.modelId){
+                var deleteId = i;
+                break;
+              }
+            }
+            this.$delete(this.models, deleteId);
           }else if (res["action"] == "deleteRecipe") {
             console.log(res);
             for(let i=0; i< this.recipes.length; i++){
