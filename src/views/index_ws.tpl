@@ -318,12 +318,38 @@
 
       <div v-show="selectedMenu == 'learning'">
         <h2>${$t("tab.menu.learning")}</h2>
-        <p>
-          ${$t("element.data")}: <b-form-select v-model="selectedLearningData" :options="learningDataOptions" class="w-51 mb-3 w-50" />
-        </p>
-        <p>
-          ${$t("element.recipe")}: <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-51 mb-3 w-50" />
-        </p>
+        <b-card>
+          <b-row class="mb-2">
+            <b-col sm="auto" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
+            <b-col>
+              <b-form-input v-model="newModel.name" type="text" placeholder="" class="w-50"></b-form-input>
+            </b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="auto" class="text-sm-right">
+              <b>${$t("table.description")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-textarea v-model="newModel.description" placeholder="" :rows="3" :max-rows="6" class="w-50">
+            </b-col>
+          </b-row>
+          <b-row class="mb-3">
+            <b-col sm="auto" class="text-sm-right">
+              <b>${$t("element.data")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-select v-model="selectedLearningData" :options="learningDataOptions" class="w-50" />
+            </b-col>
+          </b-row>
+          <b-row class="mb-3">
+            <b-col sm="auto" class="text-sm-right">
+              <b>${$t("element.recipe")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-50" />
+            </b-col>
+          </b-row>
+        </b-card>
         <p>
           <b-button v-on:click="startLearning" v-bind:disabled="!selectedRecipe || !selectedLearningData">
             ${$t("element.startToLearn")}

@@ -113,11 +113,8 @@ def handler(wsock, message):
 
             recipe_id = obj["recipeId"]
             data_id = obj["dataId"]
+            model_info = obj["info"] 
             model = CNN(recipe_id)
-            model_info = {
-                "name": "name",
-                "description": "desc"
-            }
             model.train(data_id, wsock, model_info)
 
         elif obj["action"] == "addRecipe":

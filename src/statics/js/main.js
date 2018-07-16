@@ -77,6 +77,10 @@ window.onload = function() {
         description: ""
       },
       newRecipe: {},
+      newModel: {
+        name: "",
+        description: ""
+      },
       recipeLayers: [
         {
           "name": "inputData",
@@ -619,7 +623,8 @@ window.onload = function() {
         req = {
           "action": "start_learing",
           "recipeId": this.selectedRecipe["id"],
-          "dataId": this.selectedLearningData["id"]
+          "dataId": this.selectedLearningData["id"],
+          "info": this.newModel
          }
         this.sendMessage(req)
 
