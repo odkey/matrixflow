@@ -333,7 +333,7 @@
               <b-form-textarea v-model="newModel.description" placeholder="" :rows="3" :max-rows="6" class="w-50">
             </b-col>
           </b-row>
-          <b-row class="mb-3">
+          <b-row class="mb-2">
             <b-col sm="auto" class="text-sm-right">
               <b>${$t("element.data")}:</b>
             </b-col>
@@ -341,7 +341,7 @@
               <b-form-select v-model="selectedLearningData" :options="learningDataOptions" class="w-50" />
             </b-col>
           </b-row>
-          <b-row class="mb-3">
+          <b-row class="mb-2">
             <b-col sm="auto" class="text-sm-right">
               <b>${$t("element.recipe")}:</b>
             </b-col>
@@ -405,7 +405,7 @@
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
                 <b-col>${ row.item.update_time }</b-col>
               </b-row>
-
+              <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
               <div class="button-right">
                 <b-btn size="sm" v-b-modal="'deleteModel'+row.index">${$t("button.delete")}</b-btn>
               </div>
