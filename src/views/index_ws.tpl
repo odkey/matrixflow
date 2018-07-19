@@ -113,7 +113,12 @@
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
-              <b-col>${ row.item.description }</b-col>
+              <b-col v-if="row.item.mode == 'detail'">
+                ${ row.item.description }
+              </b-col>
+              <b-col v-if="row.item.mode == 'edit'">
+                <b-form-textarea v-model="row.item.description" placeholder="" :rows="3" :max-rows="6">
+              </b-col>
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
