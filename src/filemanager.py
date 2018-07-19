@@ -112,6 +112,7 @@ def put_data_info(new_data, file_id):
     os.makedirs(p, exist_ok=True)
     file_path = p / "info.json"
     save_json(new_data, file_path)
+    return new_data
 
 def get_create_time(p):
     """

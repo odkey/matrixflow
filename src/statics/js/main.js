@@ -657,6 +657,23 @@ window.onload = function() {
         this.sendMessage(request);
         this.parseFile(this.uploadFile, 10000);
       },
+      updateData: function(data){
+        const req = {
+          action: "updateData",
+          dataInfo: {
+            "name": data.name,
+            "description": data.description
+          },
+          dataId: data.id
+        };
+        this.sendMessage(req)
+        data.mode = "detail";
+      },
+      cancelData: function(data){
+        data.name = data.bkup.name;
+        data.description = data.bkup.description;
+        data.mode = "detail";
+      },
       sendMessage: function(msg){
         this.ws.send(JSON.stringify(msg));
       },
@@ -812,7 +829,7 @@ window.onload = function() {
         const recipes_req = {"action": "get_recipe_list"};
         this.sendMessage(recipes_req);
 
-        const data_req = {"action": "get_data_list"};
+        const data_req = {"action": "getDataList"};
         this.sendMessage(data_req);
 
         const model_req = {"action": "getModelList"};
@@ -826,8 +843,13 @@ window.onload = function() {
       this.ws.onmessage = (evt) => {
           const res  = JSON.parse(evt.data)
           console.log(res);
-          if (res["action"] == "get_data_list") {
-            this.learningData = res["list"]
+          if (res["action"] == "getDataList") {
+            const dataList = res["list"];
+            dataList.forEach(v=>{
+              v.mode = "detail";
+              v.bkup = Object.assign({},v);
+            });
+            this.learningData = dataList;
             console.log(this.learningData);
           }else if (res["action"] == "getModelList") {
             console.log(res);

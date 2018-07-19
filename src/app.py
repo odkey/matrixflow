@@ -88,7 +88,7 @@ def handler(wsock, message):
             d["name"] = obj.get("name", "")
             d["description"] = obj.get("description", "")
 
-        elif obj["action"] == "get_data_list":
+        elif obj["action"] == "getDataList":
             offset = obj.get("offset", 0)
             limit = obj.get("limit")
             res = fm.get_data_list()
@@ -113,7 +113,7 @@ def handler(wsock, message):
 
             recipe_id = obj["recipeId"]
             data_id = obj["dataId"]
-            model_info = obj["info"] 
+            model_info = obj["info"]
             model = CNN(recipe_id)
             model.train(data_id, wsock, model_info)
 
@@ -149,6 +149,15 @@ def handler(wsock, message):
             res["action"] = obj["action"]
             res["dataId"] = data_id
             wsock.send(json.dumps(res))
+
+        elif obj["action"] == "updateData":
+            data = obj["dataInfo"]
+            file_id = obj["dataId"]
+            res = fm.put_data_info(data, file_id)
+            log_debug(res)
+            res["action"] = obj["action"]
+            wsock.send(json.dumps(res))
+
 
 
     except (UnicodeDecodeError, json.decoder.JSONDecodeError):
