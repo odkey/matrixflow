@@ -114,6 +114,13 @@ def put_data_info(new_data, file_id):
     save_json(new_data, file_path)
     return new_data
 
+def put_model_info(new_model, model_id):
+    info_dir = Path(model_dir) / model_id/ "info"
+    os.makedirs(info_dir, exist_ok=True)
+    info_path = info_dir / "info.json"
+    save_json(new_model, info_path)
+    return new_model
+
 def get_create_time(p):
     """
     p Path object

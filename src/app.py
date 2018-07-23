@@ -158,7 +158,13 @@ def handler(wsock, message):
             res["action"] = obj["action"]
             wsock.send(json.dumps(res))
 
-
+        elif obj["action"] == "updateModel":
+            model_id = obj["modelId"]
+            model = obj["model"]
+            res = fm.put_model_info(model, model_id)
+            log_debug(res)
+            res["action"] = obj["action"]
+            wsock.send(json.dumps(res))
 
     except (UnicodeDecodeError, json.decoder.JSONDecodeError):
         d["size"] += len(message)

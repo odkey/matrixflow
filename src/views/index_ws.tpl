@@ -412,11 +412,21 @@
               </b-row>
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
-                <b-col>${ row.item.name }</b-col>
+                <b-col v-if="row.item.mode == 'detail'">
+                  ${ row.item.name }
+                </b-col>
+                <b-col v-if="row.item.mode == 'edit'">
+                  <b-form-input v-model="row.item.name" type="text" placeholder="" class="w-50"></b-form-input>
+                </b-col>
               </b-row>
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
-                <b-col>${ row.item.description }</b-col>
+                <b-col v-if="row.item.mode == 'detail'">
+                  ${ row.item.description }
+                </b-col>
+                <b-col v-if="row.item.mode == 'edit'">
+                  <b-form-textarea v-model="row.item.description" placeholder="" :rows="3" :max-rows="6" class="w-50">
+                </b-col>
               </b-row>
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
@@ -426,10 +436,20 @@
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
                 <b-col>${ row.item.update_time }</b-col>
               </b-row>
-              <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
+
+              <div v-if="row.item.mode == 'detail'">
+                <b-button size="sm" @click="row.item.mode = 'edit'">${$t("button.edit")}</b-button>
+                <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
+              </div>
+              <div v-if="row.item.mode == 'edit'">
+                <b-button size="sm" @click="updateModel(row.item)">${$t("button.save")}</b-button>
+                <b-button size="sm" @click="cancelModel(row.item)">${$t("button.cancel")}</b-button>
+              </div>
               <div class="button-right">
                 <b-btn size="sm" v-b-modal="'deleteModel'+row.index">${$t("button.delete")}</b-btn>
               </div>
+            </b-card>
+
               <b-modal v-bind:id="'deleteModel'+row.index" ref="modal" @ok="deleteModel(row)">
                 <div slot="modal-title">
                   ${$t("message.deleteModel")}
@@ -441,7 +461,6 @@
                   ${row.item.name} (${row.item.id})
                 </div>
               </b-modal>
-            </b-card>
           </template>
         </b-table>
       </div>

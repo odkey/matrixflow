@@ -674,6 +674,23 @@ window.onload = function() {
         data.description = data.bkup.description;
         data.mode = "detail";
       },
+      updateModel: function(data){
+        const req = {
+          action: "updateModel",
+          model: {
+            "name": data.name,
+            "description": data.description
+          },
+          modelId: data.id
+        };
+        this.sendMessage(req)
+        data.mode = "detail";
+      },
+      cancelModel: function(data){
+        data.name = data.bkup.name;
+        data.description = data.bkup.description;
+        data.mode = "detail";
+      },
       sendMessage: function(msg){
         this.ws.send(JSON.stringify(msg));
       },
@@ -852,8 +869,12 @@ window.onload = function() {
             this.learningData = dataList;
             console.log(this.learningData);
           }else if (res["action"] == "getModelList") {
-            console.log(res);
-            this.models = res["list"]
+            const modelList = res["list"];
+            modelList.forEach(v=>{
+              v.mode = "detail";
+              v.bkup = Object.assign({},v);
+            });
+            this.models = modelList;
           }else if (res["action"] == "get_recipe_list") {
             this.recipes = res["list"]
             this.recipes.forEach(v=>{
