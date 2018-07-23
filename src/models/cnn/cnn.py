@@ -12,7 +12,7 @@ sys.path.insert(0, '../..')
 from ..recipe import Model
 from ..recipemanager import Manager as RecipeManager
 from ..imagemanager import Manager as ImageManager
-from filemanager import save_json
+from filemanager import put_model_info
 
 out_dir = "logs"
 save_checkpoint = True
@@ -125,10 +125,8 @@ class CNN(Model):
 
                 if model_info:
                     print("save model info")
-                    info_dir = os.path.join(self.out_dir, "info")
-                    os.makedirs(info_dir)
-                    info_path = os.path.join(info_dir, "info.json")
-                    save_json(model_info, info_path)
+                    r = put_model_info(model_info, self.id)
+                    print(r)
 
                 global_step = tf.Variable(0, name="global_step", trainable=False)
                 optimizer = tf.train.AdamOptimizer(config["learning_rate"])
