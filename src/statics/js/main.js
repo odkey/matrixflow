@@ -691,6 +691,23 @@ window.onload = function() {
         data.description = data.bkup.description;
         data.mode = "detail";
       },
+      updateRecipe: function(data){
+        const req = {
+          action: "updateRecipe",
+          info: {
+            "name": data.body.info.name,
+            "description": data.body.info.description
+          },
+          recipeId: data.id
+        };
+        this.sendMessage(req)
+        data.mode = "detail";
+      },
+      cancelRecipe: function(data){
+        data.body.info.name = data.bkup.body.info.name;
+        data.body.info.description = data.bkup.body.info.description;
+        data.mode = "detail";
+      },
       sendMessage: function(msg){
         this.ws.send(JSON.stringify(msg));
       },
@@ -843,7 +860,7 @@ window.onload = function() {
 
       this.ws.onopen = () => {
         console.log("ws open.");
-        const recipes_req = {"action": "get_recipe_list"};
+        const recipes_req = {"action": "getRecipeList"};
         this.sendMessage(recipes_req);
 
         const data_req = {"action": "getDataList"};
@@ -875,9 +892,12 @@ window.onload = function() {
               v.bkup = Object.assign({},v);
             });
             this.models = modelList;
-          }else if (res["action"] == "get_recipe_list") {
-            this.recipes = res["list"]
-            this.recipes.forEach(v=>{
+          }else if (res["action"] == "getRecipeList") {
+            const recipes = res["list"];
+            recipes.forEach(v=>{
+              v.mode = "detail";
+              v.bkup = {body:{info:{}}};
+              v.bkup.body.info = Object.assign({},v.body.info);
               v.body.tappedLayer = {
                 data: () => {
                   return {
@@ -889,8 +909,9 @@ window.onload = function() {
                 }
               };
             });
+            this.recipes = recipes;
           } else if (res["action"] == "addRecipe"){
-            const recipes_req = {"action": "get_recipe_list"};
+            const recipes_req = {"action": "getRecipeList"};
             this.sendMessage(recipes_req);
             this.initNewRecipe()
             this.buildGraph(this.newRecipe, "-new");
@@ -936,7 +957,7 @@ window.onload = function() {
             this.newData.name = "";
             this.newData.description = "";
             this.uploadFile = null;
-            const data_req = {"action": "get_data_list"};
+            const data_req = {"action": "getDataList"};
             this.sendMessage(data_req);
           } else {
             var loadedSize = res["loadedSize"]

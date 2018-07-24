@@ -95,7 +95,7 @@ def handler(wsock, message):
             res["action"] = obj["action"]
             wsock.send(json.dumps(res))
 
-        elif obj["action"] == "get_recipe_list":
+        elif obj["action"] == "getRecipeList":
             offset = obj.get("offset", 0)
             limit = obj.get("limit")
             res = fm.get_recipe_list(offset, limit)
@@ -162,6 +162,21 @@ def handler(wsock, message):
             model_id = obj["modelId"]
             model = obj["model"]
             res = fm.put_model_info(model, model_id)
+            log_debug(res)
+            res["action"] = obj["action"]
+            wsock.send(json.dumps(res))
+
+        elif obj["action"] == "updateRecipe":
+            recipe_id = obj["recipeId"]
+            info = obj["info"]
+            res = fm.get_recipe(recipe_id)
+            if res and res.get("status") == "success":
+                body = res["detail"]["body"]
+                body["info"]["name"] = info["name"]
+                body["info"]["description"] = info["description"]
+                res = fm.update_recipe(recipe_id, body)
+            else:
+                res = {"status": "error"}
             log_debug(res)
             res["action"] = obj["action"]
             wsock.send(json.dumps(res))

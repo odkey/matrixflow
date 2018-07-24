@@ -280,17 +280,36 @@
             <b-card>
 
               <b-row class="mb-2">
-                <b-col sm="3" class="text-sm-right"><b>${$t("recipe.id")}:</b></b-col>
+                <b-col sm="3" class="text-sm-right">
+                  <b>${$t("recipe.id")}:</b>
+                </b-col>
                 <b-col>${ row.item.id }</b-col>
               </b-row>
+
               <b-row class="mb-2">
-                <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
-                <b-col>${ row.item.body.info.name }</b-col>
+                <b-col sm="3" class="text-sm-right">
+                  <b>${$t("table.name")}:</b>
+                </b-col>
+                <b-col v-if="row.item.mode == 'detail'">
+                  ${ row.item.body.info.name }
+                </b-col>
+                <b-col v-if="row.item.mode == 'edit'">
+                  <b-form-input v-model="row.item.body.info.name" type="text" placeholder=""></b-form-input>
+                </b-col>
               </b-row>
+
               <b-row class="mb-2">
-                <b-col sm="3" class="text-sm-right"><b>${$t("table.description")}:</b></b-col>
-                <b-col>${ row.item.body.info.description }</b-col>
+                <b-col sm="3" class="text-sm-right">
+                  <b>${$t("table.description")}:</b>
+                </b-col>
+                <b-col v-if="row.item.mode == 'detail'">
+                  ${ row.item.body.info.description }
+                </b-col>
+                <b-col v-if="row.item.mode=='edit'">
+                  <b-form-textarea v-model="row.item.body.info.description" placeholder="" :rows="3" :max-rows="6">
+                </b-col>
               </b-row>
+
               <b-row class="mb-2">
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
                 <b-col>${ row.item.create_time }</b-col>
@@ -315,12 +334,22 @@
                   <b-form-textarea :value="json2String(row.item.body)"></b-form-textarea>
                 </b-col>
               </b-row>
-              <b-button size="sm" @click.stop="closeRecipe(row)">
-                ${$t("button.close")}
-              </b-button>
+
+              <div v-if="row.item.mode == 'detail'">
+                <b-button size="sm" @click="row.item.mode = 'edit'">${$t("button.edit")}</b-button>
+                <b-button size="sm" @click="closeRecipe(row)">${$t("button.close")}</b-button>
+              </div>
+              <div v-if="row.item.mode == 'edit'">
+                <b-button size="sm" @click="updateRecipe(row.item)">${$t("button.save")}</b-button>
+                <b-button size="sm" @click="cancelRecipe(row.item)">${$t("button.cancel")}</b-button>
+              </div>
+
               <div class="button-right">
                 <b-btn size="sm" v-b-modal="'deleteRecipe'+row.index">${$t("button.delete")}</b-btn>
               </div>
+
+            </b-card>
+
               <b-modal v-bind:id="'deleteRecipe'+row.index" ref="modal" @ok="deleteRecipe(row)">
                 <div slot="modal-title">
                   ${$t("message.deleteRecipe")}
@@ -332,7 +361,7 @@
                   ${row.item.body.info.name} (${row.item.id})
                 </div>
               </b-modal>
-            </b-card>
+
           </template>
         </b-table>
       </div>
