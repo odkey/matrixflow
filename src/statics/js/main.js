@@ -799,9 +799,9 @@ window.onload = function() {
           }
         };
       },
-      getTargetIndex(targetList, targetObj){
+      getTargetIndex(targetList, targetId){
         for(let i=0; i< targetList.length; i++){
-          if(targetList[i].id == targetObj.id){
+          if(targetList[i].id == targetId){
             return i;
           }
         }
@@ -924,36 +924,17 @@ window.onload = function() {
             this.buildGraph(this.newRecipe, "-new");
 
           }else if (res["action"] == "deleteModel") {
-            console.log(res);
-            for(let i=0; i< this.models.length; i++){
-              if(this.models[i].id == res.modelId){
-                var deleteId = i;
-                break;
-              }
-            }
+            const deleteId = this.getTargetIndex(this.models, res.modelId);
             this.$delete(this.models, deleteId);
           }else if (res["action"] == "deleteRecipe") {
-            console.log(res);
-            for(let i=0; i< this.recipes.length; i++){
-              if(this.recipes[i].id == res.recipeId){
-                var deleteId = i;
-                break;
-              }
-            }
+            const deleteId = this.getTargetIndex(this.recipes, res.recipeId);
             this.$delete(this.recipes, deleteId);
           }else if (res["action"] == "deleteData") {
-            console.log(res);
-            for(let i=0; i< this.learningData.length; i++){
-              if(this.learningData[i].id == res.dataId){
-                var deleteId = i;
-                break;
-              }
-            }
+            const deleteId = this.getTargetIndex(this.learningData, res.dataId);
             this.$delete(this.learningData, deleteId);
           }else if (res["action"] == "updateData") {
-            console.log(res);
             const data = res.data;
-            const updateId = this.getTargetIndex(this.learningData, res.data);
+            const updateId = this.getTargetIndex(this.learningData, res.data.id);
             data.mode = "detail";
             data.bkup = Object.assign({},data);
             this.$set(this.learningData, updateId, data);
