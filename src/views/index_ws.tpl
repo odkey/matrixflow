@@ -121,16 +121,16 @@
               </b-col>
             </b-row>
             <b-row class="mb-2">
-              <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
-              <b-col>${ row.item.create_time }</b-col>
-            </b-row>
-            <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>${$t("data.nImages")}:</b></b-col>
               <b-col>${ row.item.nImages }</b-col>
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>${$t("data.nLabels")}:</b></b-col>
               <b-col>${ row.item.nLabels }</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right"><b>${$t("table.createTime")}:</b></b-col>
+              <b-col>${ row.item.create_time }</b-col>
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
