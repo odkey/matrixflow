@@ -110,7 +110,7 @@ def put_zip_file(file, file_id, is_expanding=False):
 def put_data_info(new_data, file_id):
     p = Path(data_dir) / file_id
     info_path = p / "info"
-    os.makedirs(p, exist_ok=True)
+    os.makedirs(info_path, exist_ok=True)
     file_path = info_path / "info.json"
     save_json(new_data, file_path)
     return get_data(p)
