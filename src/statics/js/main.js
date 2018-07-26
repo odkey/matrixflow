@@ -144,7 +144,7 @@ window.onload = function() {
       languageOptions: [],
       selectedMenu: "data",
       selectedLanguage: language,
-      dataSortBy: "create_time",
+      dataSortBy: "update_time",
       dataSortDesc: true,
       activationOptions:[
         {value: "relu", text: "ReLU"},
@@ -798,6 +798,13 @@ window.onload = function() {
             sortable: false,
           }
         };
+      },
+      getTargetIndex(targetList, targetObj){
+        for(let i=0; i< targetList.length; i++){
+          if(targetList[i].id == targetObj.id){
+            return i;
+          }
+        }
       }
     },
     watch: {
@@ -943,6 +950,13 @@ window.onload = function() {
               }
             }
             this.$delete(this.learningData, deleteId);
+          }else if (res["action"] == "updateData") {
+            console.log(res);
+            const data = res.data;
+            const updateId = this.getTargetIndex(this.learningData, res.data);
+            data.mode = "detail";
+            data.bkup = Object.assign({},data);
+            this.$set(this.learningData, updateId, data);
           }else if(res["action"] == "learning"){
             this.learningNumIter = res["nIter"]
             this.learningProgress = res["iter"]

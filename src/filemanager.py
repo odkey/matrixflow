@@ -108,11 +108,12 @@ def put_zip_file(file, file_id, is_expanding=False):
     return {"status": "success"}
 
 def put_data_info(new_data, file_id):
-    p = Path(data_dir) / file_id / "info"
+    p = Path(data_dir) / file_id
+    info_path = p / "info"
     os.makedirs(p, exist_ok=True)
-    file_path = p / "info.json"
+    file_path = info_path / "info.json"
     save_json(new_data, file_path)
-    return new_data
+    return get_data(p)
 
 def put_model_info(new_model, model_id):
     info_dir = Path(model_dir) / model_id/ "info"
@@ -169,44 +170,47 @@ def get_model_list():
     return res
 
 
+def get_data(path):
+    images = path / "images"
+    labels = path / "labels" / "labels.csv"
+    info = path / "info" / "info.json"
+    id = path.name
+    n_images = len(list(images.glob("*")))
+    print(n_images)
+    print(images, labels, info)
+    if info.exists():
+        with open(info, "r") as f:
+            body = json.load(f)
+    else:
+        body = {}
+
+    if labels.exists():
+        with open(labels, "r") as f:
+            n_labels = len(f.readlines())
+    else:
+        n_labels = 0
+
+    create_time = get_create_time(path)
+    update_time = get_update_time(info)
+    data = {
+        "id": id,
+        "nImages": n_images,
+        "nLabels": n_labels,
+        "name": body.get("name", ""),
+        "description": body.get("description", ""),
+        "update_time": update_time,
+        "create_time": create_time
+    }
+    return data
 
 def get_data_list():
     p = Path(data_dir)
     p_list = [x for x in p.iterdir() if x.is_dir()]
     length = len(p_list)
     data = []
-    for j in p_list:
-        images = j / "images"
-        labels = j / "labels" / "labels.csv"
-        info = j / "info" / "info.json"
-        id = j.name
-        n_images = len(list(images.glob("*")))
-        print(n_images)
-        print(images, labels, info)
-        if info.exists():
-            with open(info, "r") as f:
-                body = json.load(f)
-        else:
-            body = {}
-
-        if labels.exists():
-            with open(labels, "r") as f:
-                n_labels = len(f.readlines())
-        else:
-            n_labels = 0
-
-        create_time = get_create_time(j)
-        update_time = get_update_time(j)
-        rec = {
-            "id": id,
-            "nImages": n_images,
-            "nLabels": n_labels,
-            "name": body.get("name", ""),
-            "description": body.get("description", ""),
-            "update_time": update_time,
-            "create_time": create_time
-        }
-        data.append(rec)
+    for path in p_list:
+        d = get_data(path)
+        data.append(d)
     res = {
             "status": "success",
             "data_type": "list",
