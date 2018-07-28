@@ -164,9 +164,12 @@ def handler(wsock, message):
         elif obj["action"] == "updateModel":
             model_id = obj["modelId"]
             model = obj["model"]
-            res = fm.put_model_info(model, model_id)
+            put_res = fm.put_model_info(model, model_id)
+            res = {
+                "model": put_res["detail"],
+                "action": obj["action"]
+            }
             log_debug(res)
-            res["action"] = obj["action"]
             wsock.send(json.dumps(res))
 
         elif obj["action"] == "updateRecipe":

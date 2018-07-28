@@ -426,7 +426,7 @@
 
       <div v-show="selectedMenu == 'model'">
         <h2>${$t("tab.menu.model")}</h2>
-        <b-table :items="models" :fields="modelFields" hover>
+        <b-table :items="models" :fields="modelFields" :sort-by.sync="dataSortBy" :sort-desc.sync="dataSortDesc" hover>
           <template slot="showDetails" slot-scope="row">
             <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
               ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}

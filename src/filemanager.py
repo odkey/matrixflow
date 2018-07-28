@@ -115,12 +115,27 @@ def put_data_info(new_data, file_id):
     save_json(new_data, file_path)
     return get_data(p)
 
+def get_model_info(model_id):
+    p = Path(model_dir) / model_id / "info" / "info.json"
+    with open(p, "r") as f:
+        body = json.load(f)
+    body["id"] = model_id
+    body["create_time"] = get_create_time(p)
+    body["update_time"] = get_update_time(p)
+    res = {
+        "status": "success",
+        "data_type": "detail",
+        "detail": body
+    }
+    return res
+
+
 def put_model_info(new_model, model_id):
-    info_dir = Path(model_dir) / model_id/ "info"
+    info_dir = Path(model_dir) / model_id / "info"
     os.makedirs(info_dir, exist_ok=True)
     info_path = info_dir / "info.json"
     save_json(new_model, info_path)
-    return new_model
+    return get_model_info(model_id)
 
 def get_create_time(p):
     """
@@ -149,10 +164,12 @@ def get_model_list():
         if info.exists():
             with open(info, "r") as f:
                 body = json.load(f)
+            update_time = get_update_time(info)
         else:
             body = {}
+            update_time = get_update_time(j)
+
         create_time = get_create_time(j)
-        update_time = get_update_time(j)
         model = {
             "id": id,
             "name": body.get("name", ""),
@@ -299,13 +316,7 @@ def get_recipe(id):
 def update_recipe(id, obj):
     p = Path(recipe_dir) / id / "recipe.json"
     save_json(obj, p)
-    get_res = get_recipe(id)
-    res = {
-        "status": "success",
-        "data_type": "detail",
-        "detail": get_res["detail"] 
-    }
-    return res
+    return get_recipe(id)
 
 def delete_recipe(id):
     p = Path(recipe_dir) / id

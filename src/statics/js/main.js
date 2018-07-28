@@ -691,6 +691,12 @@ window.onload = function() {
         data.description = data.bkup.description;
         data.mode = "detail";
       },
+      updateList: function(targetList, targetItem){
+        const updateId = this.getTargetIndex(targetList, targetItem.id);
+        targetItem.mode = "detail";
+        targetItem.bkup = Object.assign({}, targetItem);
+        this.$set(targetList, updateId, targetItem);
+      },
       updateRecipe: function(data){
         const req = {
           action: "updateRecipe",
@@ -934,18 +940,13 @@ window.onload = function() {
             this.$delete(this.learningData, deleteId);
 
           }else if (res["action"] == "updateData") {
-            const data = res.data;
-            const updateId = this.getTargetIndex(this.learningData, res.data.id);
-            data.mode = "detail";
-            data.bkup = Object.assign({},data);
-            this.$set(this.learningData, updateId, data);
+            this.updateList(this.learningData, res.data);
 
           }else if (res["action"] == "updateRecipe") {
-            const recipe = res.recipe;
-            const updateId = this.getTargetIndex(this.recipes, res.recipe.id);
-            recipe.mode = "detail";
-            recipe.bkup = Object.assign({},recipe);
-            this.$set(this.recipes, updateId, recipe);
+            this.updateList(this.recipes, res.recipe);
+
+          }else if (res["action"] == "updateModel") {
+            this.updateList(this.models, res.model);
 
           }else if(res["action"] == "learning"){
             this.learningNumIter = res["nIter"]
