@@ -281,7 +281,14 @@ def get_recipe(id):
     p = Path(recipe_dir) / id / "recipe.json"
     with open(p, "r") as f:
         body = json.load(f)
-    recipe = {"id": id, "body": body}
+    create_time = get_create_time(p)
+    update_time = get_update_time(p)
+    recipe = {
+        "id": id,
+        "body": body,
+        "update_time": update_time,
+        "create_time": create_time
+    }
     res = {
         "status": "success",
         "data_type": "detail",
@@ -292,10 +299,11 @@ def get_recipe(id):
 def update_recipe(id, obj):
     p = Path(recipe_dir) / id / "recipe.json"
     save_json(obj, p)
+    get_res = get_recipe(id)
     res = {
         "status": "success",
         "data_type": "detail",
-        "detail": {"id": id, "body": obj}
+        "detail": get_res["detail"] 
     }
     return res
 

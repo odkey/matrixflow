@@ -270,7 +270,7 @@
             </b-card>
           </b-collapse>
         </div>
-        <b-table :items="recipes" :fields="recipeFields" hover>
+        <b-table :items="recipes" :fields="recipeFields" :sort-by.sync="dataSortBy" :sort-desc.sync="dataSortDesc" hover>
           <template slot="showDetails" slot-scope="row">
             <b-button size="sm" @click.stop="toggleRecipe(row)" class="mr-2">
               ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}

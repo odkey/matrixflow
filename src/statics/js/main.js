@@ -932,12 +932,21 @@ window.onload = function() {
           }else if (res["action"] == "deleteData") {
             const deleteId = this.getTargetIndex(this.learningData, res.dataId);
             this.$delete(this.learningData, deleteId);
+
           }else if (res["action"] == "updateData") {
             const data = res.data;
             const updateId = this.getTargetIndex(this.learningData, res.data.id);
             data.mode = "detail";
             data.bkup = Object.assign({},data);
             this.$set(this.learningData, updateId, data);
+
+          }else if (res["action"] == "updateRecipe") {
+            const recipe = res.recipe;
+            const updateId = this.getTargetIndex(this.recipes, res.recipe.id);
+            recipe.mode = "detail";
+            recipe.bkup = Object.assign({},recipe);
+            this.$set(this.recipes, updateId, recipe);
+
           }else if(res["action"] == "learning"){
             this.learningNumIter = res["nIter"]
             this.learningProgress = res["iter"]

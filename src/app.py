@@ -177,11 +177,17 @@ def handler(wsock, message):
                 body = res["detail"]["body"]
                 body["info"]["name"] = info["name"]
                 body["info"]["description"] = info["description"]
-                res = fm.update_recipe(recipe_id, body)
+                new_recipe = fm.update_recipe(recipe_id, body)
+                res = {
+                    "recipe": new_recipe["detail"],
+                    "action": obj["action"]
+                }
             else:
-                res = {"status": "error"}
+                res = {
+                    "status": "error",
+                    "action": obj["action"]
+                }
             log_debug(res)
-            res["action"] = obj["action"]
             wsock.send(json.dumps(res))
 
     except (UnicodeDecodeError, json.decoder.JSONDecodeError):
