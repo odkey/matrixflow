@@ -72,6 +72,13 @@
               </b-col>
           </b-row>
           <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right">
+            </b-col>
+            <b-col sm="3" class="text-sm-right">
+              <img id="dataset" src="statics/img/dataset.png">
+            </b-col>
+          </b-row>
+          <b-row class="mb-2">
             <b-col sm="3" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
             <b-col>
               <b-form-input v-model="newData.name" type="text" placeholder=""></b-form-input>

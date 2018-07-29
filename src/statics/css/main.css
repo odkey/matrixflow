@@ -22,6 +22,10 @@ button {
   background-color: #850491;
 }
 
+#dataset {
+  width: 100%
+}
+
 
 div.progress-bar.progress-bar-striped.progress-bar-animated{
   background-color: #850491;
