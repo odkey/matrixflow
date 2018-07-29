@@ -59,7 +59,9 @@
         <b-collapse id="data-add" class="mt-2" v-model="showAddData">
           <b-card>
             <b-row class="mb-2">
-              <b-col sm="3" class="text-sm-right"><b>${$t("data.images")}(${$t("data.zip")} ):</b></b-col>
+              <b-col sm="3" class="text-sm-right">
+                <b>${$t("data.dataset")}(${$t("data.zip")} ):</b>
+              </b-col>
               <!--
               <b-col>
                 <b-form-file class="w-50 p-3 mb-1 bg-secondary" @change="selectedFile" placeholder="" directory></b-form-file>
@@ -257,7 +259,7 @@
                 </b-col>
                 <b-col>
                   <draggable class="drop-graph" :options="{group:'ITEMS'}" style="display: none;">
-                    <div>dummy</div>
+                    <div></div>
                   </draggable>
                   <div class="recipe-graph">
                     <div class="cy" id="cy-new"></div>

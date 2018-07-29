@@ -34,7 +34,7 @@
     },
     "data":{
       "id": "データID",
-      "images": "画像データセット",
+      "dataset": "画像データとラベル",
       "zip": "zipファイル",
       "nImages": "画像数",
       "nLabels": "ラベル数"
@@ -105,7 +105,7 @@
     },
     "data":{
       "id": "Deta ID",
-      "images": "Images",
+      "dataset": "Images & Labels",
       "zip": "Zip File",
       "nImages": "Number of Images",
       "nLabels": "Number of Labels"

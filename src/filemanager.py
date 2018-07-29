@@ -90,21 +90,31 @@ def put_zip_file(file, file_id, is_expanding=False):
       file_id: string
     """
     p = Path(data_dir) / file_id
-    os.makedirs(p, exist_ok=True)
-    file_path = p / "image.zip"
+    os.makedirs(p / "tmp", exist_ok=True)
+    tmp = p / "tmp" 
+    file_path = tmp / "data.zip"
     with open(file_path, "wb") as f:
         f.write(file)
 
     if is_expanding:
-        image_path = p
-        with zipfile.ZipFile(file_path) as existing_zip:
+        with zipfile.ZipFile(file_path) as zf:
             try:
-                existing_zip.extractall(image_path)
+                print(zf)
+                zf.extractall(tmp)
+
+                image_dir =tmp.glob("*/images")
+                d =  next(image_dir)
+                os.rename(d, p / "images")
+
+                l_dir =tmp.glob("*/labels")
+                d =  next(l_dir)
+                os.rename(d, p / "labels")
+                shutil.rmtree(tmp)
+
             except Exception as e:
-                os.remove(file_path)
+                shutil.rmtree(tmp)
                 print(e)
                 return {"status": "error"}
-        os.remove(file_path)
     return {"status": "success"}
 
 def put_data_info(new_data, file_id):
@@ -198,8 +208,10 @@ def get_data(path):
     if info.exists():
         with open(info, "r") as f:
             body = json.load(f)
+        update_time = get_update_time(info)
     else:
         body = {}
+        update_time = get_update_time(path)
 
     if labels.exists():
         with open(labels, "r") as f:
@@ -208,7 +220,6 @@ def get_data(path):
         n_labels = 0
 
     create_time = get_create_time(path)
-    update_time = get_update_time(info)
     data = {
         "id": id,
         "nImages": n_images,
