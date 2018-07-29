@@ -655,7 +655,7 @@ window.onload = function() {
         };
         this.progress = 1;
         this.sendMessage(request);
-        this.parseFile(this.uploadFile, 10000);
+        this.parseFile(this.uploadFile, 100000);
       },
       updateData: function(data){
         const req = {

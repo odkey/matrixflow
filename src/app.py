@@ -3,6 +3,7 @@ from bottle import request, Bottle, run, template, static_file
 import json
 import os
 import sys
+import time
 from argparse import ArgumentParser
 
 #sys.path.append(os.getcwd() + '/domain')
@@ -198,6 +199,7 @@ def handler(wsock, message):
         d["uploading_file"] += message
         response = {"status": "loading", "loadedSize": d["size"]}
         print(response)
+        time.sleep(0.05) # for the progress bar.
         wsock.send(json.dumps(response))
         if d["size"] == int(d["file_size"]):
             uploading_file = d["uploading_file"]
