@@ -34,6 +34,10 @@ def index_html():
     #return template("index")
     return template("index_ws")
 
+@app.route("/test")
+def index():
+    return static_file('/views/index_2.html', root='./')
+
 @app.route("/statics/<filepath:path>")
 def statics(filepath):
     return static_file(filepath, root="./statics")
@@ -94,6 +98,15 @@ def handler(wsock, message):
             limit = obj.get("limit")
             res = fm.get_data_list()
             res["action"] = obj["action"]
+            wsock.send(json.dumps(res))
+
+        elif obj["action"] == "getData":
+            offset = obj.get("offset", 0)
+            limit = obj.get("limit", 10)
+            data_id = obj.get("dataId")
+            res = fm.get_data(data_id, offset, limit)
+            res["action"] = obj["action"]
+            res["dataId"] = data_id 
             wsock.send(json.dumps(res))
 
         elif obj["action"] == "getRecipeList":

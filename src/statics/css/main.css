@@ -26,6 +26,16 @@ button {
   width: 100%
 }
 
+a.page-link.btn-primary{
+  background-color: #850491 !important;
+  color: #FFF !important;
+  border-color: black !important;
+}
+
+a.page-link {
+  color: #850491 !important;
+}
+
 
 div.progress-bar.progress-bar-striped.progress-bar-animated{
   background-color: #850491;

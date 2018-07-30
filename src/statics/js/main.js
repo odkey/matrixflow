@@ -201,6 +201,33 @@ window.onload = function() {
       result: ""
     },
     methods: {
+      linkGen: function(row){
+        console.log(row.item);
+        const page = row.item.currentPage;
+        if(page != row.item.prevPage){
+          const req = {
+            action: "getData",
+            dataId: row.item.id,
+            offset: (page-1) * 10,
+            limit: page * 10
+          };
+          this.sendMessage(req);
+          row.item.prevPage = page;
+        }
+      },
+      toggleData: function(row){
+        if(!row.detailsShowing){
+          console.log(row.item.id);
+          const req = {
+            action: "getData",
+            dataId: row.item.id,
+            offset: 0,
+            limit: 10
+          }
+          this.sendMessage(req);
+        }
+        row.toggleDetails();
+      },
       resetZoom: function(recipe){
         recipe.graph.zoom(1.0);
       },
@@ -691,10 +718,16 @@ window.onload = function() {
         data.description = data.bkup.description;
         data.mode = "detail";
       },
-      updateList: function(targetList, targetItem){
+      updateList: function(targetList, targetItem, optionDict){
         const updateId = this.getTargetIndex(targetList, targetItem.id);
         targetItem.mode = "detail";
         targetItem.bkup = Object.assign({}, targetItem);
+        if(optionDict){
+          for(let i=0; i < optionDict.length; i++){
+            const option = optionDict[i]
+            targetItem[option.key] = option.value;
+          }
+        }
         this.$set(targetList, updateId, targetItem);
       },
       updateRecipe: function(data){
@@ -895,17 +928,28 @@ window.onload = function() {
             dataList.forEach(v=>{
               v.mode = "detail";
               v.bkup = Object.assign({},v);
+              v.images = [];
+              v.currentPage = 1;
+              v.prevPage = 1;
             });
             this.learningData = dataList;
             console.log(this.learningData);
-          }else if (res["action"] == "getModelList") {
+          }else if(res["action"] == "getData") {
+            const index = this.getTargetIndex(this.learningData, res.dataId);
+            res.list.forEach(v=>{
+              v.body = "data:image/png;base64,"+ v.body
+            });
+            const images = res.list;
+            this.learningData[index].images = images;
+
+          }else if(res["action"] == "getModelList") {
             const modelList = res["list"];
             modelList.forEach(v=>{
               v.mode = "detail";
               v.bkup = Object.assign({},v);
             });
             this.models = modelList;
-          }else if (res["action"] == "getRecipeList") {
+          }else if(res["action"] == "getRecipeList") {
             const recipes = res["list"];
             recipes.forEach(v=>{
               v.mode = "detail";
@@ -940,7 +984,7 @@ window.onload = function() {
             this.$delete(this.learningData, deleteId);
 
           }else if (res["action"] == "updateData") {
-            this.updateList(this.learningData, res.data);
+            this.updateList(this.learningData, res.data, [{key: "images", value: []}]);
 
           }else if (res["action"] == "updateRecipe") {
             this.updateList(this.recipes, res.recipe);

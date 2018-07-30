@@ -101,7 +101,7 @@
       </div>
       <b-table :items="learningData" :fields="dataFields" :sort-by.sync="dataSortBy" :sort-desc.sync="dataSortDesc" hover>
         <template slot="showDetails" slot-scope="row">
-          <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
+          <b-button size="sm" @click.stop="toggleData(row)" class="mr-2">
             ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
           </b-button>
         </template>
@@ -144,6 +144,18 @@
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
               <b-col>${ row.item.update_time }</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col v-for="i in row.item.images">
+                <b-row><b-col class="text-center">${i.name}</b-col></b-row>
+                <b-row><b-col class="text-center"><img :src="i.body" width="90%" height="90%"></b-col></b-row>
+                <b-row><b-col class="text-center"><b>${i.label}</b></b-col></b-row>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-pagination-nav align="center" base-url="#" size="md" :link-gen="linkGen(row)" :number-of-pages="row.item.nImages/10" v-model="row.item.currentPage"/>
+              </b-col>
             </b-row>
 
             <div v-if="row.item.mode == 'detail'">

@@ -91,7 +91,7 @@ def put_zip_file(file, file_id, is_expanding=False):
     """
     p = Path(data_dir) / file_id
     os.makedirs(p / "tmp", exist_ok=True)
-    tmp = p / "tmp" 
+    tmp = p / "tmp"
     file_path = tmp / "data.zip"
     with open(file_path, "wb") as f:
         f.write(file)
@@ -123,7 +123,7 @@ def put_data_info(new_data, file_id):
     os.makedirs(info_path, exist_ok=True)
     file_path = info_path / "info.json"
     save_json(new_data, file_path)
-    return get_data(p)
+    return get_data_info(p)
 
 def get_model_info(model_id):
     p = Path(model_dir) / model_id / "info" / "info.json"
@@ -197,7 +197,39 @@ def get_model_list():
     return res
 
 
-def get_data(path):
+def get_data(data_id, offset, limit):
+    p = Path(data_dir) / data_id
+    images_path = p / "images"
+    labels_path = p / "labels" / "labels.csv"
+    images = list(images_path.glob("*"))
+    data = images[offset: limit]
+    import base64
+    dic_list = []
+    for d in data:
+        name = d.name
+        with open(labels_path) as f:
+            for line in f:
+                l = line.split(",")
+                if(l[0] == name):
+                    label = l[1]
+                    break
+        images_dic = {
+            "name": name,
+            "body": base64.encodestring(open(d, 'rb').read()).decode("utf-8"),
+            "label": label
+        }
+        dic_list.append(images_dic)
+    length = len(images)
+    res = {
+        "status": "success",
+        "data_type": "list",
+        "total": length,
+        "list": dic_list
+    }
+    return res
+
+
+def get_data_info(path):
     images = path / "images"
     labels = path / "labels" / "labels.csv"
     info = path / "info" / "info.json"
@@ -237,7 +269,7 @@ def get_data_list():
     length = len(p_list)
     data = []
     for path in p_list:
-        d = get_data(path)
+        d = get_data_info(path)
         data.append(d)
     res = {
             "status": "success",
