@@ -4,6 +4,7 @@ Deep Learning Framework for Non-Engineers.
 
 ## Demo  
 ![layers](https://github.com/Tdual/matrixflow/blob/master/layers.gif)
+![showdata](https://github.com/Tdual/matrixflow/blob/master/showdata.gif)
 ![learning](https://github.com/Tdual/matrixflow/blob/master/learning.gif)
 
 ## Installation
