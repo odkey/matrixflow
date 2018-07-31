@@ -1,6 +1,7 @@
 {
   "ja": {
     "message": {
+      "finishLearning": "学習が終わりました。",
       "deleteRecipe": "このレシピを削除してもよろしいですか？",
       "deleteModel": "このモデルを削除してもよろしいですか？"
     },
@@ -73,6 +74,7 @@
 
   "en": {
     "message": {
+      "finishLearning": "Finish Learning",
       "deleteRecipe": "Are you sure you want to delete the recipe?",
       "deleteModel": "Are you sure you want to delete the model?"
     },

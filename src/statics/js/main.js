@@ -916,6 +916,17 @@ window.onload = function() {
       app.style.visibility = "visible";
 
 
+      if ('Notification' in window) {
+        Notification.requestPermission()
+        .then((permission) => {
+          if (permission == 'granted') {
+          } else if (permission == 'denied') {
+          } else if (permission == 'default') {
+          }
+        });
+      }
+
+
 
       this.ws.onopen = () => {
         console.log("ws open.");
@@ -987,6 +998,15 @@ window.onload = function() {
             this.buildGraph(this.newRecipe, "-new");
 
           }else if (res["action"] == "finishLearning") {
+            var n = new Notification(
+                this.$i18n.t("message.finishLearning"),
+                {
+                  body: '',
+                  icon: '',
+                  tag: '',
+                  data: {}
+                }
+              );
             const model_req = {"action": "getModelList"};
             this.sendMessage(model_req);
           }else if (res["action"] == "deleteModel") {
