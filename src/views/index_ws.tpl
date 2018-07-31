@@ -27,6 +27,7 @@
 
     <script src="//cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.16.0/vuedraggable.min.js"></script>
+    <script src="statics/js/main.js"></script>
 
   </head>
   <body>
@@ -154,7 +155,7 @@
             </b-row>
             <b-row>
               <b-col>
-                <b-pagination-nav align="center" base-url="#" size="md" :link-gen="linkGen(row)" :number-of-pages="row.item.nImages/10" v-model="row.item.currentPage"/>
+                <b-pagination-nav align="center" base-url="#" size="md" :link-gen="linkGen(row)" :number-of-pages="row.item.nImages/imagesPerPage" v-model="row.item.currentPage"/>
               </b-col>
             </b-row>
 
@@ -517,10 +518,26 @@
 
       <div v-show="selectedMenu == 'setting'">
         <h2>${$t("tab.menu.setting")}</h2>
-        ${$t("setting.language")}
-        <b-form-select v-model="selectedLanguage" :options="languageOptions" class="mb-3" />
+        <b-container>
+          <b-row class="mb-4">
+            <b-col class="text-right" md="2">
+              ${$t("setting.language")}:
+            </b-col>
+            <b-col>
+              <b-form-select v-model="selectedLanguage" :options="languageOptions"/>
+            </b-col>
+          </b-row>
+          <b-row class="mb-4">
+            <b-col class="text-right" md="2">
+              ${$t("setting.imagesPerPage")}:
+            </b-col>
+            <b-col>
+              <b-form-input v-model="imagesPerPage" type="number"></b-form-input>
+            </b-col>
+          </b-row>
+        </b-container>
       </div>
+
     </div>
   </body>
-  <script src="statics/js/main.js"></script>
 </html>

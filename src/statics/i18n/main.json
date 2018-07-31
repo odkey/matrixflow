@@ -63,7 +63,8 @@
       }
     },
     "setting":{
-      "language": "言語"
+      "language": "言語",
+      "imagesPerPage": "表示画像数"
     },
     "activation":{
       "ident": "恒等関数"
@@ -134,7 +135,8 @@
       }
     },
     "setting":{
-      "language": "Language"
+      "language": "Language",
+      "imagesPerPage": "Images per Page"
     },
     "activation": {
       "ident": "identity"

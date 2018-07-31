@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 
 from response import put_response
 from log import log_debug
-from getface import cutout_face, get_face_image_name, circumscribe_face
+#from getface import cutout_face, get_face_image_name, circumscribe_face
 #from prob import Prob
 import filemanager as fm
 #html_path = "../static/html/"

@@ -46,8 +46,14 @@ window.onload = function() {
                     window.navigator.userLanguage ||
                     window.navigator.browserLanguage;
     language = language? language.split("-")[0]: "en"
-    setLocalSettings("language", language)
+    setLocalSettings("language", language);
+  }
 
+  if(localSettings["imagesPerPage"]){
+    var imagesPerPage = parseInt(localSettings["imagesPerPage"]);
+  }else{
+    var imagesPerPage = 10;
+    setLocalSettings("imagesPerPage", imagesPerPage);
   }
 
   const translations = res.data;
@@ -146,6 +152,7 @@ window.onload = function() {
       selectedLanguage: language,
       dataSortBy: "update_time",
       dataSortDesc: true,
+      imagesPerPage: imagesPerPage,
       activationOptions:[
         {value: "relu", text: "ReLU"},
         {value: "ident", text: i18n.t("activation.ident")}
@@ -208,8 +215,8 @@ window.onload = function() {
           const req = {
             action: "getData",
             dataId: row.item.id,
-            offset: (page-1) * 10,
-            limit: page * 10
+            offset: (page-1) * this.imagesPerPage,
+            limit: page * this.imagesPerPage
           };
           this.sendMessage(req);
           row.item.prevPage = page;
@@ -222,7 +229,7 @@ window.onload = function() {
             action: "getData",
             dataId: row.item.id,
             offset: 0,
-            limit: 10
+            limit: this.imagesPerPage
           }
           this.sendMessage(req);
         }
@@ -850,6 +857,12 @@ window.onload = function() {
       selectedLanguage: function(newLocale, oldLocale){
         this.$i18n.locale = newLocale;
         setLocalSettings("language", newLocale)
+      },
+      imagesPerPage: function(newI, oldI){
+        if(typeof　newI == "string"){
+          this.imagesPerPage = parseInt(newI);
+          setLocalSettings("imagesPerPage", newI)
+        }
       },
       showAddRecipe: function(newShow, oldShow){
         if(newShow){
