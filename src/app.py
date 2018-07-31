@@ -130,6 +130,10 @@ def handler(wsock, message):
             model_info = obj["info"]
             model = CNN(recipe_id)
             model.train(data_id, wsock, model_info)
+            res = {
+                "action": "finishLearning"
+            }
+            wsock.send(json.dumps(res))
 
         elif obj["action"] == "addRecipe":
             recipe = obj["recipe"]

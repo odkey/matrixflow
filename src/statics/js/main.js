@@ -986,7 +986,11 @@ window.onload = function() {
             this.initNewRecipe()
             this.buildGraph(this.newRecipe, "-new");
 
+          }else if (res["action"] == "finishLearning") {
+            const model_req = {"action": "getModelList"};
+            this.sendMessage(model_req);
           }else if (res["action"] == "deleteModel") {
+
             const deleteId = this.getTargetIndex(this.models, res.modelId);
             this.$delete(this.models, deleteId);
           }else if (res["action"] == "deleteRecipe") {
