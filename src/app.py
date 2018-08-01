@@ -106,7 +106,7 @@ def handler(wsock, message):
             data_id = obj.get("dataId")
             res = fm.get_data(data_id, offset, limit)
             res["action"] = obj["action"]
-            res["dataId"] = data_id 
+            res["dataId"] = data_id
             wsock.send(json.dumps(res))
 
         elif obj["action"] == "getRecipeList":
@@ -128,8 +128,9 @@ def handler(wsock, message):
             recipe_id = obj["recipeId"]
             data_id = obj["dataId"]
             model_info = obj["info"]
+            config = obj["trainConfig"]
             model = CNN(recipe_id)
-            model.train(data_id, wsock, model_info)
+            model.train(config, data_id, wsock, model_info)
             res = {
                 "action": "finishLearning"
             }

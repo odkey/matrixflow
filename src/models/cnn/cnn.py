@@ -112,9 +112,8 @@ class CNN(Model):
         #self.loss(h_8)
         #self.acc(h_8)
 
-    def train(self, data_path, ws=None, model_info=None):
+    def train(self, config, data_path, ws=None, model_info=None):
         self.ima.load_data(os.path.join(self.data_dir, data_path))
-        config = self.recipe["train"]
 
         with tf.Graph().as_default():
             print("start session")
@@ -125,11 +124,13 @@ class CNN(Model):
 
                 if model_info:
                     print("save model info")
+                    model_info["train_config"] = config
                     r = put_model_info(model_info, self.id)
                     print(r)
 
                 global_step = tf.Variable(0, name="global_step", trainable=False)
-                optimizer = tf.train.AdamOptimizer(config["learning_rate"])
+                learning_rate = float(config["learning_rate"])
+                optimizer = tf.train.AdamOptimizer(learning_rate)
                 grads_and_vars = optimizer.compute_gradients(self.loss)
                 train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
 
@@ -163,8 +164,8 @@ class CNN(Model):
 
 
                 sess.run(tf.global_variables_initializer())
-                epoch = config["epoch"]
-                batch_size = config["batch_size"]
+                epoch = float(config["epoch"])
+                batch_size = int(config["batch_size"])
                 n_iter = int(epoch * self.ima.n_train)
                 for i in tqdm(range(n_iter)):
 
@@ -175,7 +176,7 @@ class CNN(Model):
                     labels, images = self.ima.next_batch("train", batch_size)
                     sess.run(train_op, feed_dict={self.x: images, self.y: labels})
 
-                    if i % config["saver"]["evaluate_every"] == 0:
+                    if i % int(config["saver"]["evaluate_every"]["train"]) == 0:
 
                         step, summaries, train_loss, train_accuracy =\
                             sess.run([global_step, train_summary_op, self.loss, self.accuracy], feed_dict={self.x: images, self.y: labels})
@@ -193,7 +194,7 @@ class CNN(Model):
                             }
                             ws.send(json.dumps(res))
 
-                    if i % 50 == 0 and i != 0:
+                    if i % int(config["saver"]["evaluate_every"]["test"]) == 0 and i != 0:
                         labels, images = self.ima.next_batch("test", self.ima.n_test)
                         feed = {self.x: images, self.y: labels}
                         step, summaries, test_loss, test_accuracy =\

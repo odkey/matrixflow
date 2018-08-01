@@ -392,13 +392,13 @@
         <h2>${$t("tab.menu.learning")}</h2>
         <b-card>
           <b-row class="mb-2">
-            <b-col sm="auto" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
+            <b-col sm="2" class="text-sm-right"><b>${$t("table.name")}:</b></b-col>
             <b-col>
               <b-form-input v-model="newModel.name" type="text" placeholder="" class="w-50"></b-form-input>
             </b-col>
           </b-row>
           <b-row class="mb-2">
-            <b-col sm="auto" class="text-sm-right">
+            <b-col sm="2" class="text-sm-right">
               <b>${$t("table.description")}:</b>
             </b-col>
             <b-col>
@@ -406,7 +406,7 @@
             </b-col>
           </b-row>
           <b-row class="mb-2">
-            <b-col sm="auto" class="text-sm-right">
+            <b-col sm="2" class="text-sm-right">
               <b>${$t("element.data")}:</b>
             </b-col>
             <b-col>
@@ -414,13 +414,62 @@
             </b-col>
           </b-row>
           <b-row class="mb-2">
-            <b-col sm="auto" class="text-sm-right">
+            <b-col sm="2" class="text-sm-right">
               <b>${$t("element.recipe")}:</b>
             </b-col>
             <b-col>
               <b-form-select v-model="selectedRecipe" :options="recipeOptions" class="w-50" />
             </b-col>
           </b-row>
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right">
+            </b-col>
+            <b-col v-b-toggle.learning-config>
+              <i class="fa fa-gear" style="font-size:36px; align=left"></i>
+            </b-col>
+          </b-row>
+          <b-collapse id="learning-config" class="mt-2">
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right">
+              <b>${$t("learning.config.learningRate")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-input type="number" v-model="newModel.config.learning_rate" step="0.001" class="w-50" />
+            </b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right">
+              <b>${$t("learning.config.batchSize")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-input type="number" v-model="newModel.config.batch_size" step="1" class="w-50" />
+            </b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right">
+              <b>${$t("learning.config.epoch")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-input type="number" v-model="newModel.config.epoch" step="1" class="w-50" />
+            </b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right">
+              <b>${$t("learning.config.evaluateEveryTrain")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-input type="number" v-model="newModel.config.saver.evaluate_every.train" step="5" class="w-50" />
+            </b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right">
+              <b>${$t("learning.config.evaluateEveryTest")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-input type="number" v-model="newModel.config.saver.evaluate_every.test" step="5" class="w-50" />
+            </b-col>
+          </b-row>
+          </b-collapse>
         </b-card>
         <p>
           <b-button v-on:click="startLearning" v-bind:disabled="!selectedRecipe || !selectedLearningData">

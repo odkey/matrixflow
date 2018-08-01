@@ -10,6 +10,15 @@
       "data": "データ",
       "startToLearn": "学習開始"
     },
+    "learning": {
+      "config": {
+        "learningRate": "学習率",
+        "batchSize": "バッチサイズ",
+        "epoch": "エポック",
+        "evaluateEveryTrain": "評価頻度（訓練データ）",
+        "evaluateEveryTest":  "評価頻度（テストデータ）"
+      }
+    },
     "button":{
       "add": "新規追加",
       "save": "保存",
@@ -82,6 +91,15 @@
       "recipe": "Recipe",
       "data": "Data",
       "startToLearn": "Start to Learn"
+    },
+    "learning": {
+      "config": {
+        "learningRate": "Learning Rate",
+        "batchSize": "Batch Size",
+        "epoch": "Epoch",
+        "evaluateEveryTrain": "Evaluate Every（Train）",
+        "evaluateEveryTest":  "Evaluate Every（Test）"
+      }
     },
     "button":{
       "add": "Add",

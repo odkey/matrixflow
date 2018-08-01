@@ -85,7 +85,19 @@ window.onload = function() {
       newRecipe: {},
       newModel: {
         name: "",
-        description: ""
+        description: "",
+        config: {
+          "learning_rate": 0.001,
+          "batch_size": 64,
+          "epoch": 0.05,
+          "saver": {
+            "evaluate_every": {
+              "train": 10,
+              "test": 30
+            },
+            "num_checkpoints": 5
+          }
+        }
       },
       recipeLayers: [
         {
@@ -433,15 +445,6 @@ window.onload = function() {
       addRecipe: function(){
         const recipe = this.createRecipe(this.newRecipe);
         console.log(recipe);
-        recipe.train = {
-          "learning_rate": 0.001,
-          "batch_size": 64,
-          "epoch": 0.05,
-          "saver": {
-            "evaluate_every": 10,
-            "num_checkpoints": 5
-          }
-        };
         const req = {
           action: "addRecipe",
           recipe: recipe
@@ -654,12 +657,14 @@ window.onload = function() {
         this.selectedLanguage = lang;
       },
       startLearning: function(){
+        const config = this.newModel.config;
         req = {
           "action": "start_learing",
           "recipeId": this.selectedRecipe["id"],
           "dataId": this.selectedLearningData["id"],
-          "info": this.newModel
-         }
+          "info": this.newModel,
+          "trainConfig": config
+        }
         this.sendMessage(req)
 
       },
