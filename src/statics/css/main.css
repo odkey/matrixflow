@@ -70,3 +70,7 @@ table {
   border: medium solid #efefef;
   height: 500px;
 }
+
+.nowrap {
+  white-space: nowrap;
+}

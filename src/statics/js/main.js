@@ -787,10 +787,6 @@ window.onload = function() {
           create_time: {
             label: this.$i18n.t("table.createTime"),
             sortable: true,
-          },
-          showDetails: {
-            label: this.$i18n.t("table.details"),
-            sortable: false,
           }
         };
       },
@@ -815,10 +811,6 @@ window.onload = function() {
           create_time: {
             label: this.$i18n.t("table.createTime"),
             sortable: true,
-          },
-          showDetails: {
-            label: this.$i18n.t("table.details"),
-            sortable: false,
           }
         };
       },
@@ -843,10 +835,6 @@ window.onload = function() {
           create_time: {
             label: this.$i18n.t("table.createTime"),
             sortable: true,
-          },
-          showDetails: {
-            label: this.$i18n.t("table.details"),
-            sortable: false,
           }
         };
       },

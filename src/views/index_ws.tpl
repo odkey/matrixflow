@@ -102,11 +102,33 @@
        </b-collapse>
       </div>
       <b-table :items="learningData" :fields="dataFields" :sort-by.sync="dataSortBy" :sort-desc.sync="dataSortDesc" hover>
-        <template slot="showDetails" slot-scope="row">
-          <b-button size="sm" @click.stop="toggleData(row)" class="mr-2">
-            ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
-          </b-button>
+
+        <template slot="id" slot-scope="row">
+          <div @click.stop="toggleData(row)">
+            ${row.item.id}
+          </div>
         </template>
+        <template slot="name" slot-scope="row">
+          <div @click.stop="toggleData(row)">
+            ${row.item.name}
+          </div>
+        </template>
+        <template slot="description" slot-scope="row">
+          <div @click.stop="toggleData(row)">
+            ${row.item.description}
+          </div>
+        </template>
+        <template slot="update_time" slot-scope="row">
+          <div @click.stop="toggleData(row)" class="nowrap">
+            ${row.item.update_time}
+          </div>
+        </template>
+        <template slot="create_time" slot-scope="row">
+          <div @click.stop="toggleData(row)" class="nowrap">
+            ${row.item.create_time}
+          </div>
+        </template>
+
         <template slot="row-details" slot-scope="row">
           <b-card>
             <b-row class="mb-2">
@@ -294,11 +316,33 @@
           </b-collapse>
         </div>
         <b-table :items="recipes" :fields="recipeFields" :sort-by.sync="dataSortBy" :sort-desc.sync="dataSortDesc" hover>
-          <template slot="showDetails" slot-scope="row">
-            <b-button size="sm" @click.stop="toggleRecipe(row)" class="mr-2">
-              ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
-            </b-button>
+
+          <template slot="id" slot-scope="row">
+            <div @click.stop="toggleRecipe(row)">
+              ${row.item.id}
+            </div>
           </template>
+          <template slot="name" slot-scope="row">
+            <div @click.stop="toggleRecipe(row)">
+              ${row.item.name}
+            </div>
+          </template>
+          <template slot="description" slot-scope="row">
+            <div @click.stop="toggleRecipe(row)">
+              ${row.item.description}
+            </div>
+          </template>
+          <template slot="update_time" slot-scope="row">
+            <div @click.stop="toggleRecipe(row)" class="nowrap">
+              ${row.item.update_time}
+            </div>
+          </template>
+          <template slot="create_time" slot-scope="row">
+            <div @click.stop="toggleRecipe(row)" class="nowrap">
+              ${row.item.create_time}
+            </div>
+          </template>
+
           <template slot="row-details" slot-scope="row">
             <b-card>
 
@@ -499,11 +543,33 @@
       <div v-show="selectedMenu == 'model'">
         <h2>${$t("tab.menu.model")}</h2>
         <b-table :items="models" :fields="modelFields" :sort-by.sync="dataSortBy" :sort-desc.sync="dataSortDesc" hover>
-          <template slot="showDetails" slot-scope="row">
-            <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
-              ${ row.detailsShowing ? $t("button.close") : $t("button.showDetails")}
-            </b-button>
+
+          <template slot="id" slot-scope="row">
+            <div @click.stop="row.toggleDetails">
+              ${row.item.id}
+            </div>
           </template>
+          <template slot="name" slot-scope="row">
+            <div @click.stop="row.toggleDetails">
+              ${row.item.name}
+            </div>
+          </template>
+          <template slot="description" slot-scope="row">
+            <div @click.stop="row.toggleDetails">
+              ${row.item.description}
+            </div>
+          </template>
+          <template slot="update_time" slot-scope="row">
+            <div @click.stop="row.toggleDetails" class="nowrap">
+              ${row.item.update_time}
+            </div>
+          </template>
+          <template slot="create_time" slot-scope="row">
+            <div @click.stop="row.toggleDetails" class="nowrap">
+              ${row.item.create_time}
+            </div>
+          </template>
+
           <template slot="row-details" slot-scope="row">
             <b-card>
 
