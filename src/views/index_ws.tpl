@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>MatrixFlow</title>
+    <link rel="icon" href="statics/img/favicon.ico" sizes="32x32">
 
     <!-- Add this to <head> -->
     <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
