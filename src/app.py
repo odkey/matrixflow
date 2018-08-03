@@ -123,7 +123,7 @@ def handler(wsock, message):
             res["action"] = obj["action"]
             wsock.send(json.dumps(res))
 
-        elif obj["action"] == "start_learing":
+        elif obj["action"] == "startLearning":
 
             recipe_id = obj["recipeId"]
             data_id = obj["dataId"]

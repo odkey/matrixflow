@@ -659,7 +659,7 @@ window.onload = function() {
       startLearning: function(){
         const config = this.newModel.config;
         req = {
-          "action": "start_learing",
+          "action": "startLearning",
           "recipeId": this.selectedRecipe["id"],
           "dataId": this.selectedLearningData["id"],
           "info": this.newModel,
