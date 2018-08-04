@@ -3,22 +3,6 @@ window.onload = function() {
   const host = location.host;
   const url = "ws://"+host+"/connect";
 
-  function addChartData(charData, type, newLabel, newData){
-    //const types = {"train":0, "test": 1}
-    let data = Object.assign({}, charData);
-    /*
-    const lastLabel = data.labels.length > 0 ? data.labels[data.labels.length - 1]:0
-    if (parseInt(lastLabel) < parseInt(newLabel)){
-      data.labels.push(newLabel)
-    }
-    */
-    data.labels.push(newLabel)
-    const newDataNum = parseFloat(newData);
-    //data.datasets[types[type]].data.push(newDataNum);
-    data.datasets[0].data.push(newDataNum);
-    return data;
-  }
-
   function getLocalSettings(){
     const localSettingsStr = localStorage.getItem("settings");
     localSettings = JSON.parse(localSettingsStr)? JSON.parse(localSettingsStr): {};
@@ -86,6 +70,7 @@ window.onload = function() {
       newModel: {
         name: "",
         description: "",
+        charts: [],
         config: {
           "learning_rate": 0.001,
           "batch_size": 64,
@@ -220,6 +205,47 @@ window.onload = function() {
       result: ""
     },
     methods: {
+      addChartData: function(charts, label, newLabel, newData){
+        const index = this.getTargetChartIndex(charts, label)
+        const chartData = charts[index];
+        let data = Object.assign({}, chartData);
+        data.labels.push(newLabel)
+        const newDataNum = parseFloat(newData);
+        data.datasets[0].data.push(newDataNum);
+        charts[index] = data;
+      },
+      getTargetChartIndex: function(charts, label){
+        for(let i=0; i < charts.length; i++){
+          const chart = charts[i];
+          if(chart.datasets[0].label == label){
+            return i;
+          }
+        }
+      },
+      initCharts: function(model){
+        const labels = [
+          {label: "train_accuracy", color: themeColor},
+          {label: "train_loss", color: themeColor},
+          {label: "test_accuracy", color: "#f87979"},
+          {label: "test_loss", color: "#f87979"}
+        ]
+        const charts = [];
+        labels.forEach(v=>{
+          const c = {
+            labels: [],
+            datasets: [
+              {
+                label: v["label"],
+                fill: false,
+                backgroundColor: v["color"],
+                data: []
+              }
+            ]
+          };
+          charts.push(c)
+        });
+        model.charts = charts;
+      },
       linkGen: function(row){
         console.log(row.item);
         const page = row.item.currentPage;
@@ -658,11 +684,15 @@ window.onload = function() {
       },
       startLearning: function(){
         const config = this.newModel.config;
+        const info = {
+          name: this.newModel.name,
+          description: this.newModel.description
+        };
         req = {
           "action": "startLearning",
           "recipeId": this.selectedRecipe["id"],
           "dataId": this.selectedLearningData["id"],
-          "info": this.newModel,
+          "info": info,
           "trainConfig": config
         }
         this.sendMessage(req)
@@ -760,6 +790,7 @@ window.onload = function() {
         data.mode = "detail";
       },
       sendMessage: function(msg){
+        console.log(msg);
         this.ws.send(JSON.stringify(msg));
       },
       json2String: function(json){
@@ -898,6 +929,7 @@ window.onload = function() {
       this.setDataFields();
       this.setRecipeFields();
       this.setModelFields();
+      this.initCharts(this.newModel);
       this.languageOptions = [
         { value: "en", text: "English" },
         { value: "ja", text: "日本語" }
@@ -1003,12 +1035,13 @@ window.onload = function() {
             const model_req = {"action": "getModelList"};
             this.sendMessage(model_req);
           }else if (res["action"] == "deleteModel") {
-
             const deleteId = this.getTargetIndex(this.models, res.modelId);
             this.$delete(this.models, deleteId);
+
           }else if (res["action"] == "deleteRecipe") {
             const deleteId = this.getTargetIndex(this.recipes, res.recipeId);
             this.$delete(this.recipes, deleteId);
+
           }else if (res["action"] == "deleteData") {
             const deleteId = this.getTargetIndex(this.learningData, res.dataId);
             this.$delete(this.learningData, deleteId);
@@ -1025,12 +1058,15 @@ window.onload = function() {
           }else if(res["action"] == "learning"){
             this.learningNumIter = res["nIter"]
             this.learningProgress = res["iter"]
+
           }else if(res["action"] == "evaluate_train"){
-            this.accuracyTrainChartData = addChartData(this.accuracyTrainChartData, "train", res["iter"], res["accuracy"]);
-            this.lossTrainChartData = addChartData(this.lossTrainChartData, "train", res["iter"], res["loss"]);
+            this.addChartData(this.newModel.charts, "train_accuracy", res["iter"], res["accuracy"]);
+            this.addChartData(this.newModel.charts, "train_loss", res["iter"], res["loss"]);
+
           }else if(res["action"] == "evaluate_test"){
-            this.accuracyTestChartData = addChartData(this.accuracyTestChartData, "test", res["iter"], res["accuracy"]);
-            this.lossTestChartData = addChartData(this.lossTestChartData, "test", res["iter"], res["loss"]);
+            this.addChartData(this.newModel.charts, "test_accuracy", res["iter"], res["accuracy"]);
+            this.addChartData(this.newModel.charts, "test_loss", res["iter"], res["loss"]);
+
           }else if(res["action"] == "uploaded"){
             this.progress = 0;
             this.newData.name = "";
@@ -1038,6 +1074,7 @@ window.onload = function() {
             this.uploadFile = null;
             const data_req = {"action": "getDataList"};
             this.sendMessage(data_req);
+
           } else {
             var loadedSize = res["loadedSize"]
             if(loadedSize){

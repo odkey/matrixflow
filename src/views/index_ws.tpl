@@ -525,17 +525,10 @@
           <b-progress class="progress" height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
         </p>
         <draggable @choose="dragChoose" @end="dragEnd" v-on:blur="dragBlur">
-          <div>
-            <line-chart :chart-data=accuracyTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-          </div>
-          <div>
-            <line-chart :chart-data=lossTrainChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-          </div>
-          <div>
-            <line-chart :chart-data=accuracyTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
-          </div>
+          <div v-for="c in newModel.charts">
             <div>
-          <line-chart :chart-data=lossTestChartData :options=chartOptions :width="500" style="float: left;"></line-chart>
+              <line-chart :chart-data=c :options=chartOptions :width="500" style="float: left;"></line-chart>
+            </div>
           </div>
         </draggable>
       </div>
