@@ -1,9 +1,31 @@
 import tensorflow as tf
+import json
 
 
 class Model:
     def __init__(self):
         print("Model class __init__")
+
+    def evaluate(self, sess, global_step, type, writer, summary_op, images, labels, ws=None):
+        feed = {self.x: images, self.y: labels}
+        step, summaries, loss, accuracy = sess.run([global_step, summary_op, self.loss, self.accuracy], feed_dict=feed)
+
+        print('step %d, %s loss %g, %s accuracy %g' % (step, type, loss, type, accuracy))
+        writer.add_summary(summaries, step)
+        action = "evaluate_" + type
+
+        res = {
+            "action": action,
+            "id": self.id,
+            "iter": str(step),
+            "nIter": str(self.n_iter),
+            "loss": str(loss),
+            "accuracy": str(accuracy)
+        }
+
+        if ws:
+            ws.send(json.dumps(res))
+        return res
 
     def weight_variable(self, shape):
         w = tf.truncated_normal(shape, stddev=0.01)

@@ -16,7 +16,6 @@ from filemanager import put_model_info
 
 out_dir = "logs"
 save_checkpoint = True
-num_checkpoints = 5
 os.makedirs(out_dir, exist_ok=True)
 
 
@@ -157,6 +156,7 @@ class CNN(Model):
                 test_summary_writer = tf.summary.FileWriter(test_summary_dir, sess.graph)
 
                 if save_checkpoint:
+                    num_checkpoints = int(config.get("num_checkpoints", 5))
                     checkpoint_dir = os.path.abspath(os.path.join(self.out_dir, "checkpoints"))
                     checkpoint_prefix = os.path.join(checkpoint_dir, "model")
                     os.makedirs(checkpoint_dir, exist_ok=True)
@@ -164,53 +164,32 @@ class CNN(Model):
 
 
                 sess.run(tf.global_variables_initializer())
+
                 epoch = float(config["epoch"])
                 batch_size = int(config["batch_size"])
-                n_iter = int(epoch * self.ima.n_train)
-                for i in tqdm(range(n_iter)):
+                self.n_iter = int(epoch * self.ima.n_train)
 
-                    if ws:
-                        res = {"action": "learning", "iter": i, "nIter": n_iter, "id": self.id}
-                        ws.send(json.dumps(res))
+                for _ in tqdm(range(self.n_iter)):
 
                     labels, images = self.ima.next_batch("train", batch_size)
-                    sess.run(train_op, feed_dict={self.x: images, self.y: labels})
+                    _, step = sess.run([train_op, global_step], feed_dict={self.x: images, self.y: labels})
 
-                    if i % int(config["saver"]["evaluate_every"]["train"]) == 0:
+                    if ws:
+                        res = {"action": "learning", "iter": int(step), "nIter": self.n_iter, "id": self.id}
+                        ws.send(json.dumps(res))
 
-                        step, summaries, train_loss, train_accuracy =\
-                            sess.run([global_step, train_summary_op, self.loss, self.accuracy], feed_dict={self.x: images, self.y: labels})
+                    if step % int(config["saver"]["evaluate_every"]["train"]) == 0:
+                        self.evaluate(sess, global_step, "train", train_summary_writer, train_summary_op, images, labels, ws=ws)
 
-                        print('step %d, training loss %g, training accuracy %g' % (i, train_loss, train_accuracy))
-                        train_summary_writer.add_summary(summaries, step)
-                        if ws:
-                            res = {
-                                "action": "evaluate_train",
-                                "id": self.id,
-                                "iter": i,
-                                "nIter": n_iter,
-                                "loss": str(train_loss),
-                                "accuracy": str(train_accuracy)
-                            }
-                            ws.send(json.dumps(res))
-
-                    if i % int(config["saver"]["evaluate_every"]["test"]) == 0 and i != 0:
+                    if step % int(config["saver"]["evaluate_every"]["test"]) == 0 and step != 0:
                         labels, images = self.ima.next_batch("test", self.ima.n_test)
-                        feed = {self.x: images, self.y: labels}
-                        step, summaries, test_loss, test_accuracy =\
-                            sess.run([global_step, test_summary_op, self.loss, self.accuracy], feed_dict=feed)
-                        print('step %d, test loss %g, test accuracy %g' % (i, test_loss, test_accuracy))
-                        test_summary_writer.add_summary(summaries, step)
+                        res = self.evaluate(sess, global_step, "test", test_summary_writer, test_summary_op, images, labels, ws=ws)
+
                         if save_checkpoint:
-                            path = saver.save(sess, checkpoint_prefix, global_step=step)
+                            path = saver.save(sess, checkpoint_prefix, global_step=int(res["iter"]))
                             print("Saved model checkpoint to {}\n".format(path))
-                        if ws:
-                            res = {
-                                "action": "evaluate_test",
-                                "id": self.id,
-                                "iter": i,
-                                "nIter": n_iter,
-                                "loss": str(test_loss),
-                                "accuracy": str(test_accuracy)
-                            }
-                            ws.send(json.dumps(res))
+
+                if int(res["iter"]) != self.n_iter:
+                    labels, images = self.ima.next_batch("test", self.ima.n_test)
+                    res= self.evaluate(sess, global_step, "test", test_summary_writer, test_summary_op, images, labels, ws=ws)
+        return res
