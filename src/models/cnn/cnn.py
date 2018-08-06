@@ -39,6 +39,7 @@ class CNN(Model):
             if id in source_list:
                 self.edge_dict[target].remove(id)
                 self.edge_dict[target].append(output)
+        #print(self.edge_dict)
 
     def _generate_edge_dict(self):
         edges = self.recipe["edges"]
@@ -78,24 +79,26 @@ class CNN(Model):
                 y_shape = [None, params["nClass"]]
                 self.y = self.methods[name](y_shape)
                 self._change_edge_sources(id, self.y)
+            elif name == "loss" or name == "acc":
+                sources = self.edge_dict[id]
+                arg = sources
+                h = self.methods[name](*arg)
+                self._change_edge_sources(id, h)
             else:
                 sources = self.edge_dict[id]
-                for h in sources:
-                    name = layer["name"]
-                    if name == "reshape":
-                        arg = [h, params["shape"]]
-                    elif name == "conv2d":
-                        arg = [h, params["outSize"]]
-                    elif name == "max_pool":
-                        arg = [h]
-                    elif name == "flatten":
-                        arg = [h]
-                    elif name == "fc":
-                        arg = [h, params["outSize"], params["act"]]
-                    elif name == "loss" or name == "acc":
-                        arg = [h]
-                    h = self.methods[name](*arg)
-                    self._change_edge_sources(id, h)
+                h = sources[0]
+                if name == "reshape":
+                    arg = [h, params["shape"]]
+                elif name == "conv2d":
+                    arg = [h, params["outSize"]]
+                elif name == "max_pool":
+                    arg = [h]
+                elif name == "flatten":
+                    arg = [h]
+                elif name == "fc":
+                    arg = [h, params["outSize"], params["act"]]
+                h = self.methods[name](*arg)
+                self._change_edge_sources(id, h)
 
 
         #self.x, self.y = self.methods["input"](x_shape, y_shape)
@@ -192,4 +195,7 @@ class CNN(Model):
                 if int(res["iter"]) != self.n_iter:
                     labels, images = self.ima.next_batch("test", self.ima.n_test)
                     res= self.evaluate(sess, global_step, "test", test_summary_writer, test_summary_op, images, labels, ws=ws)
+
+                test_summary_writer.close()
+                train_summary_writer.close()
         return res
