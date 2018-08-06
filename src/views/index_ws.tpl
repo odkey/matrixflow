@@ -596,7 +596,17 @@
                 <b-col sm="3" class="text-sm-right"><b>${$t("table.updateTime")}:</b></b-col>
                 <b-col>${ row.item.update_time }</b-col>
               </b-row>
+              <div>
+                <draggable @choose="dragChoose" @end="dragEnd" v-on:blur="dragBlur">
+                  <div v-for="c in row.item.charts">
+                    <div>
+                      <line-chart :chart-data=c :options=chartOptions :width="500" style="float: left;"></line-chart>
+                    </div>
+                  </div>
+                </draggable>
+              </div>
 
+              <div style="clear: both;">
               <div v-if="row.item.mode == 'detail'">
                 <b-button size="sm" @click="row.item.mode = 'edit'">${$t("button.edit")}</b-button>
                 <b-button size="sm" @click="row.toggleDetails">${$t("button.close")}</b-button>
@@ -608,6 +618,8 @@
               <div class="button-right">
                 <b-btn size="sm" v-b-modal="'deleteModel'+row.index">${$t("button.delete")}</b-btn>
               </div>
+              </div>
+
             </b-card>
 
               <b-modal v-bind:id="'deleteModel'+row.index" ref="modal" @ok="deleteModel(row)">

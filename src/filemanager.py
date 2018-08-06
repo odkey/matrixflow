@@ -5,6 +5,7 @@ import datetime
 import json
 import zipfile
 from pathlib import Path
+import tensorflow as tf
 
 recipe_dir = "./recipes"
 data_dir = "./data"
@@ -179,11 +180,31 @@ def get_model_list():
             body = {}
             update_time = get_update_time(j)
 
+        sum_path = j / "summaries"
+        chartData = {}
+        for t in sum_path.glob("*/*"):
+            name = t.parent.name # test or train
+            chartData[name] = {
+                "accuracy": [],
+                "loss": [],
+                "step": []
+            }
+            t_str = str(t)
+            for e in tf.train.summary_iterator(t_str):
+                if int(e.step):
+                    chartData[name]["step"].append(e.step)
+                for v in e.summary.value:
+                    if v.tag == 'accuracy_1':
+                        chartData[name]["accuracy"].append(v.simple_value)
+                    elif v.tag == 'loss_1':
+                        chartData[name]["loss"].append(v.simple_value)
+
         create_time = get_create_time(j)
         model = {
             "id": id,
             "name": body.get("name", ""),
             "description": body.get("description", ""),
+            "chartData": chartData,
             "update_time": update_time,
             "create_time": create_time
         }

@@ -222,7 +222,7 @@ window.onload = function() {
           }
         }
       },
-      initCharts: function(model){
+      initCharts: function(model, chartData){
         const labels = [
           {label: "train_accuracy", color: themeColor},
           {label: "train_loss", color: themeColor},
@@ -231,14 +231,22 @@ window.onload = function() {
         ]
         const charts = [];
         labels.forEach(v=>{
+          type_tag = v.label.split("_")
+          if (chartData && chartData[type_tag[0]][type_tag[1]]){
+            var labels = chartData[type_tag[0]].step;
+            var data = chartData[type_tag[0]][type_tag[1]];
+          }else{
+            var labels = [];
+            var data = [];
+          }
           const c = {
-            labels: [],
+            labels: labels,
             datasets: [
               {
-                label: v["label"],
+                label: v.label,
                 fill: false,
-                backgroundColor: v["color"],
-                data: []
+                backgroundColor: v.color,
+                data: data
               }
             ]
           };
@@ -996,6 +1004,7 @@ window.onload = function() {
             modelList.forEach(v=>{
               v.mode = "detail";
               v.bkup = Object.assign({},v);
+              this.initCharts(v, v.chartData);
             });
             this.models = modelList;
           }else if(res["action"] == "getRecipeList") {

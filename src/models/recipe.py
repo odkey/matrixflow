@@ -92,12 +92,12 @@ class Model:
             h = tf.nn.bias_add(tf.matmul(input, W), b)
         return self.activation(h, act)
 
-    def loss(self, output):
+    def loss(self, output, y):
         with tf.name_scope("loss"):
             self.loss = tf.reduce_mean(
-                tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.y, logits=output))
+                tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=output))
 
-    def acc(self, output):
+    def acc(self, output, y):
         with tf.name_scope("accuracy"):
-            correct = tf.equal(tf.argmax(output, 1), tf.argmax(self.y, 1))
+            correct = tf.equal(tf.argmax(output, 1), tf.argmax(y, 1))
             self.accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
