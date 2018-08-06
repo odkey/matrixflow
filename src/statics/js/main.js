@@ -694,6 +694,7 @@ window.onload = function() {
         this.selectedLanguage = lang;
       },
       startLearning: function(){
+        this.initCharts(this.newModel);
         const config = this.newModel.config;
         const info = {
           name: this.newModel.name,
