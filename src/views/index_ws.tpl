@@ -515,7 +515,6 @@
             </b-col>
           </b-row>
           </b-collapse>
-        </b-card>
         <p>
           <b-button v-on:click="startLearning" v-bind:disabled="!selectedRecipe || !selectedLearningData">
             ${$t("element.startToLearn")}
@@ -524,6 +523,7 @@
         <p v-show="learningProgress > 0">
           <b-progress class="progress" height="30px" :value="learningProgress" :max="learningNumIter" show-progress animated></b-progress>
         </p>
+        <div>
         <draggable @choose="dragChoose" @end="dragEnd" v-on:blur="dragBlur">
           <div v-for="c in newModel.charts">
             <div>
@@ -531,6 +531,8 @@
             </div>
           </div>
         </draggable>
+        </div>
+      </b-card>
       </div>
 
       <div v-show="selectedMenu == 'model'">
