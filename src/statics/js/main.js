@@ -75,6 +75,9 @@ window.onload = function() {
           "learning_rate": 0.001,
           "batch_size": 64,
           "epoch": 0.05,
+          "data": {
+            "ratio": 0.1
+          },
           "saver": {
             "evaluate_every": {
               "train": 10,

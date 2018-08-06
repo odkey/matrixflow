@@ -14,6 +14,7 @@
       "config": {
         "learningRate": "学習率",
         "batchSize": "バッチサイズ",
+        "dataRatio": "訓練データ比率",
         "epoch": "エポック",
         "evaluateEveryTrain": "評価頻度（訓練データ）",
         "evaluateEveryTest":  "評価頻度（テストデータ）"
@@ -96,6 +97,7 @@
       "config": {
         "learningRate": "Learning Rate",
         "batchSize": "Batch Size",
+        "dataRatio": "Data Ratio",
         "epoch": "Epoch",
         "evaluateEveryTrain": "Evaluate Every（Train）",
         "evaluateEveryTest":  "Evaluate Every（Test）"

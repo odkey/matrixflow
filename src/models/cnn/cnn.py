@@ -115,7 +115,9 @@ class CNN(Model):
         #self.acc(h_8)
 
     def train(self, config, data_path, ws=None, model_info=None):
-        self.ima.load_data(os.path.join(self.data_dir, data_path))
+
+        ratio = float(config["data"].get("ratio", 0.1))
+        self.ima.load_data(os.path.join(self.data_dir, data_path), ratio=ratio)
 
         with tf.Graph().as_default():
             print("start session")
