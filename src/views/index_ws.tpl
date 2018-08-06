@@ -460,6 +460,29 @@
           </b-row>
           <b-row class="mb-2">
             <b-col sm="2" class="text-sm-right">
+              <b>${$t("learning.config.dataRatio")}:</b>
+            </b-col>
+            <b-col>
+              <b-form-input type="number" v-model="newModel.config.data.ratio" step="0.01" class="w-90" />
+            </b-col>
+            <b-col>
+              <b>${$t("learning.config.dataRatio")}:</b>
+            </b-col>
+            <b-col v-if="selectedLearningData" class="text-sm-left">
+              ${ parseInt(selectedLearningData.nLabels * parseFloat(newModel.config.data.ratio))} /
+              ${ selectedLearningData.nLabels - parseInt(selectedLearningData.nLabels * parseFloat(newModel.config.data.ratio))}
+            </b-col>
+            <b-col v-else class="text-sm-left">
+              /
+            </b-col>
+            <b-col>
+            </b-col>
+            <b-col>
+            </b-col>
+          </b-row>
+
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right">
               <b>${$t("element.recipe")}:</b>
             </b-col>
             <b-col>
